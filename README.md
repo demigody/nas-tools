@@ -17,6 +17,38 @@
 7）去除更新提示以及更新系统的指令。  
 8）常用功能已测试无异常，但不保证其他人的使用效果。
 
+## 安装
+### 1、Docker
+```
+docker pull demigody12138/nas-tools:latest
+```
+教程见 [这里](https://raw.githubusercontent.com/demigody/nas-tools/master/docker/readme.md) 。
+
+如无法连接Github，注意不要开启自动更新开关(NASTOOL_AUTO_UPDATE=false)，将NASTOOL_CN_UPDATE设置为true可使用国内源加速安装依赖。
+
+### 2、本地运行
+仅支持python3.10版本，需要预安装cython（python3 -m pip install Cython），如发现缺少依赖包需额外安装：
+```
+git clone -b master https://github.com/demigody/nas-tools --recurse-submodule 
+python3 -m pip install --force-reinstall -r requirements.txt
+export NASTOOL_CONFIG="/xxx/config/config.yaml"
+nohup python3 run.py & 
+```
+
+### 3、可执行文件运行
+仅支持python3.10版本，先从tag下载对应的可执行文件，打开终端，例如下载的是macos版本，文件名为：nastool_macos_v3.2.2：
+```bash
+mv nastool_macos_v3.2.2 nastools
+chmod +x nastools
+// macos 12以上需要去隐私-安全性，允许任意开发者
+./nastools（如果需要不在终端输出执行：./nastool &> /dev/null）
+```
+
+## 官方免责
+
+1）本软件仅供学习交流使用，对用户的行为及内容毫不知情，使用本软件产生的任何责任需由使用者本人承担。  
+2）本软件代码开源，基于开源代码进行修改，人为去除相关限制导致软件被分发、传播并造成责任事件的，需由代码修改发布者承担全部责任，不建议对用户认证机制进行规避或修改并公开发布。  
+3）本项目没有在任何地方发布捐赠信息页面，也不会接受捐赠或收费，请仔细辨别避免误导。
 ---
 # 以下为原项目README
 
