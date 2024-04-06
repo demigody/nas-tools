@@ -55,10 +55,8 @@ class FWpt(_ISiteSigninHandler):
             os.makedirs(os.path.dirname(self._answer_file), exist_ok=True)
 
         # 判断今日是否已签到
-        index_res = RequestUtils(cookies=site_cookie,
-                                 headers=ua,
-                                 proxies=proxy
-                                 ).get_res(url='https://52pt.site/bakatest.php')
+        index_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                 proxies=proxy).get_res(url='https://52pt.site/bakatest.php')
         if not index_res or index_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -180,10 +178,8 @@ class FWpt(_ISiteSigninHandler):
         }
         self.debug(f"签到请求参数 {data}")
 
-        sign_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).post_res(url='https://52pt.site/bakatest.php', data=data)
+        sign_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                proxies=proxy).post_res(url='https://52pt.site/bakatest.php', data=data)
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'

@@ -7,7 +7,6 @@ from app.utils import ExceptionUtils, StringUtils
 from app.utils.commons import singleton
 from app.utils.types import SearchType, IndexerType, ProgressKey
 from app.sites import Sites
-from config import Config
 
 @singleton
 class Indexer(object):

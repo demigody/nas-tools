@@ -147,17 +147,14 @@ class DoubanWeb(object):
         req_url = cls._weburls.get(url)
         if not req_url:
             return None
-        return RequestUtils(cookies=cookie,
-                            session=cls._session,
-                            timeout=cls._timout).get(url=req_url % kwargs)
+        return RequestUtils(cookies=cookie, session=cls._session, timeout=cls._timout).get(url=req_url % kwargs)
 
     @classmethod
     def __invoke_json(cls, url, *kwargs):
         req_url = cls._jsonurls.get(url)
         if not req_url:
             return None
-        req = RequestUtils(session=cls._session,
-                           timeout=cls._timout).get_res(url=req_url % kwargs)
+        req = RequestUtils(session=cls._session, timeout=cls._timout).get_res(url=req_url % kwargs)
         return req.json() if req else None
 
     @classmethod

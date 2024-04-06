@@ -53,10 +53,8 @@ class U2(_ISiteSigninHandler):
             return False, f'【{site}】签到失败，9点前不签到'
         
         # 获取页面html
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://u2.dmhy.org/showup.php")
+        html_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                proxies=proxy).get_res(url="https://u2.dmhy.org/showup.php")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -99,11 +97,9 @@ class U2(_ISiteSigninHandler):
             submit_name[answer_num]: submit_value[answer_num]
         }
         # 签到
-        sign_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).post_res(url="https://u2.dmhy.org/showup.php?action=show",
-                                           data=data)
+        sign_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                proxies=proxy).post_res(url="https://u2.dmhy.org/showup.php?action=show",
+                                                        data=data)
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'

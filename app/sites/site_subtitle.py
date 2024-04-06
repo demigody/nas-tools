@@ -42,7 +42,7 @@ class SiteSubtitle:
             return
 
         # 读取网站代码
-        request = RequestUtils(cookies=cookie, headers=ua)
+        request = RequestUtils(headers=ua, cookies=cookie)
         res = request.get_res(media_info.page_url)
         if res and res.status_code == 200:
             if not res.text:

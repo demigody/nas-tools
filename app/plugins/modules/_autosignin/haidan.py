@@ -34,10 +34,8 @@ class HaiDan(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 签到
-        sign_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://www.haidan.video/signin.php")
+        sign_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                proxies=proxy).get_res(url="https://www.haidan.video/signin.php")
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'

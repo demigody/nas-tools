@@ -262,7 +262,7 @@ class Jackett(_IPluginModule):
         cookie = None
         session = requests.session()
         res = RequestUtils(headers=headers, session=session).post_res(url=f"{self._host}/UI/Dashboard", data={"password": self._password},
-                                                     params={"password": self._password})
+                                                                      params={"password": self._password})
         if res and session.cookies:
             cookie = session.cookies.get_dict()
         indexer_query_url = f"{self._host}/api/v2.0/indexers?configured=true"

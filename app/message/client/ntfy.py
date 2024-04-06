@@ -60,8 +60,8 @@ class Ntfy(_IMessageClient):
                 "tags": self._tags
                         }
             res = RequestUtils(headers={
-                    "Authorization": "Bearer " + self._token
-                },content_type="application/json").post_res(sc_url, json=sc_data)
+                "Authorization": "Bearer " + self._token
+            }, content_type="application/json").post_res(sc_url, json=sc_data)
             if res and res.status_code == 200:
                 return True, "发送成功"
             elif res is not None:

@@ -40,10 +40,7 @@ class Opencd(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 判断今日是否已签到
-        index_res = RequestUtils(cookies=site_cookie,
-                                 headers=ua,
-                                 proxies=proxy
-                                 ).get_res(url='https://www.open.cd')
+        index_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).get_res(url='https://www.open.cd')
         if not index_res or index_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -57,10 +54,8 @@ class Opencd(_ISiteSigninHandler):
             return True, f'【{site}】今日已签到'
 
         # 获取签到参数
-        sign_param_res = RequestUtils(cookies=site_cookie,
-                                      headers=ua,
-                                      proxies=proxy
-                                      ).get_res(url='https://www.open.cd/plugin_sign-in.php')
+        sign_param_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                      proxies=proxy).get_res(url='https://www.open.cd/plugin_sign-in.php')
         if not sign_param_res or sign_param_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -106,10 +101,8 @@ class Opencd(_ISiteSigninHandler):
                 'imagestring': ocr_result
             }
             # 访问签到链接
-            sign_res = RequestUtils(cookies=site_cookie,
-                                    headers=ua,
-                                    proxies=proxy
-                                    ).post_res(url='https://www.open.cd/plugin_sign-in.php?cmd=signin', data=data)
+            sign_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                    proxies=proxy).post_res(url='https://www.open.cd/plugin_sign-in.php?cmd=signin', data=data)
             if sign_res and sign_res.status_code == 200:
                 self.debug(f"sign_res返回 {sign_res.text}")
                 # sign_res.text = '{"state":"success","signindays":"0","integral":"10"}'

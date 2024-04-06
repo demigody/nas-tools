@@ -62,10 +62,7 @@ class Tjupt(_ISiteSigninHandler):
             os.makedirs(os.path.dirname(self._answer_file), exist_ok=True)
 
         # 获取北洋签到页面html
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url=self._sign_in_url)
+        html_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).get_res(url=self._sign_in_url)
 
         # 获取签到后返回html，判断是否签到成功
         if not html_res or html_res.status_code != 200:
@@ -96,10 +93,7 @@ class Tjupt(_ISiteSigninHandler):
         img_url = "https://www.tjupt.org" + img_url
         self.info(f"获取到签到图片 {img_url}")
         # 获取签到图片hash
-        captcha_img_res = RequestUtils(cookies=site_cookie,
-                                       headers=ua,
-                                       proxies=proxy
-                                       ).get_res(url=img_url)
+        captcha_img_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).get_res(url=img_url)
         if not captcha_img_res or captcha_img_res.status_code != 200:
             self.error(f"签到图片 {img_url} 请求失败")
             return False, f'【{site}】签到失败，未获取到签到图片'
@@ -243,10 +237,7 @@ class Tjupt(_ISiteSigninHandler):
             'submit': '提交'
         }
         self.debug(f"提交data {data}")
-        sign_in_res = RequestUtils(cookies=site_cookie,
-                                   headers=ua,
-                                   proxies=proxy
-                                   ).post_res(url=self._sign_in_url, data=data)
+        sign_in_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).post_res(url=self._sign_in_url, data=data)
         if not sign_in_res or sign_in_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'

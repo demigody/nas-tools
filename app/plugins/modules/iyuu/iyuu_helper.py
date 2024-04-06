@@ -34,13 +34,9 @@ class IyuuHelper(object):
             params = {"sign": self._token, "version": self._version}
         # 开始请求
         if method == "get":
-            ret = RequestUtils(
-                accept_type="application/json"
-            ).get_res(f"{url}", params=params)
+            ret = RequestUtils(accept_type="application/json").get_res(f"{url}", params=params)
         else:
-            ret = RequestUtils(
-                accept_type="application/json"
-            ).post_res(f"{url}", data=params)
+            ret = RequestUtils(accept_type="application/json").post_res(f"{url}", data=params)
         if ret:
             result = ret.json()
             if result.get('ret') == 200:

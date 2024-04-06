@@ -40,10 +40,7 @@ class TTG(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 获取页面html
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://totheglory.im")
+        html_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).get_res(url="https://totheglory.im")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -70,11 +67,9 @@ class TTG(_ISiteSigninHandler):
             'signed_token': signed_token
         }
         # 签到
-        sign_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).post_res(url="https://totheglory.im/signed.php",
-                                           data=data)
+        sign_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                proxies=proxy).post_res(url="https://totheglory.im/signed.php",
+                                                        data=data)
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'

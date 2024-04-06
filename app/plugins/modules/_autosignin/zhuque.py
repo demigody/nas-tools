@@ -35,10 +35,7 @@ class ZhuQue(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 获取页面html
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://zhuque.in")
+        html_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).get_res(url="https://zhuque.in")
         if not html_res or html_res.status_code != 200:
             self.error(f"模拟登录失败，请检查站点连通性")
             return False, f'【{site}】模拟登录失败，请检查站点连通性'
@@ -65,10 +62,8 @@ class ZhuQue(_ISiteSigninHandler):
                 "Content-Type": "application/json; charset=utf-8",
                 "User-Agent": ua
             }
-            skill_res = RequestUtils(cookies=site_cookie,
-                                     headers=headers,
-                                     proxies=proxy
-                                     ).post_res(url="https://zhuque.in/api/gaming/fireGenshinCharacterMagic", json=data)
+            skill_res = RequestUtils(headers=headers, cookies=site_cookie,
+                                     proxies=proxy).post_res(url="https://zhuque.in/api/gaming/fireGenshinCharacterMagic", json=data)
             if not skill_res or skill_res.status_code != 200:
                 self.error(f"模拟登录失败，释放技能失败")
 

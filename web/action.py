@@ -200,6 +200,7 @@ class WebAction:
             "update_sites_cookie_ua": self.__update_sites_cookie_ua,
             "update_site_cookie_ua": self.__update_site_cookie_ua,
             "set_site_captcha_code": self.__set_site_captcha_code,
+            "update_api_key": self.__update_api_key,
             "update_torrent_remove_task": self.__update_torrent_remove_task,
             "get_torrent_remove_task": self.__get_torrent_remove_task,
             "delete_torrent_remove_task": self.__delete_torrent_remove_task,
@@ -255,7 +256,7 @@ class WebAction:
             "/tbl": {"func": self.truncate_blacklist, "desc": "清理转移缓存"},
             "/trh": {"func": self.truncate_rsshistory, "desc": "清理RSS缓存"},
             "/utf": {"func": self.unidentification, "desc": "重新识别"},
-            #"/udt": {"func": self.update_system, "desc": "系统更新"},
+            # "/udt": {"func": self.update_system, "desc": "系统更新"},
             "/sta": {"func": self.user_statistics, "desc": "站点数据统计"}
         }
 
@@ -1106,6 +1107,7 @@ class WebAction:
         rssurl = data.get('site_rssurl')
         signurl = data.get('site_signurl')
         cookie = data.get('site_cookie')
+        apikey = data.get('site_apikey')
         note = data.get('site_note')
         if isinstance(note, dict):
             note = json.dumps(note)
@@ -1126,6 +1128,7 @@ class WebAction:
                                      rssurl=rssurl,
                                      signurl=signurl,
                                      cookie=cookie,
+                                     apikey=apikey,
                                      note=note,
                                      rss_uses=rss_uses)
             if ret and (name != old_name):
@@ -1138,6 +1141,7 @@ class WebAction:
                                   rssurl=rssurl,
                                   signurl=signurl,
                                   cookie=cookie,
+                                  apikey=apikey,
                                   note=note,
                                   rss_uses=rss_uses)
         if ret:
@@ -2168,8 +2172,7 @@ class WebAction:
                 or target.find("telegram") != -1 \
                 or target.find("fanart") != -1 \
                 or target.find("tmdb") != -1:
-            res = RequestUtils(proxies=Config().get_proxies(),
-                               timeout=5).get_res(target)
+            res = RequestUtils(proxies=Config().get_proxies(), timeout=5).get_res(target)
         else:
             res = RequestUtils(timeout=5).get_res(target)
         seconds = int((datetime.datetime.now() -
@@ -4551,6 +4554,24 @@ class WebAction:
         value = data.get("value")
         SiteCookie().set_code(code=code, value=value)
         return {"code": 0}
+
+    @staticmethod
+    def __update_api_key(data):
+        """
+        更新apikey
+        """
+        signurl = data.get('site_signurl')
+        cookie = data.get('site_cookie')
+        ua = data.get('ua') or Config().get_ua()
+        proxy = data.get('proxy')
+        flag, msg = Sites().update_api_key(signurl=signurl,
+                                           cookie=cookie,
+                                           ua=ua,
+                                           proxy=proxy)
+        if flag:
+            return {"code": "0", "apikey": msg}
+        else:
+            return {"code": "400", "msg": msg}
 
     @staticmethod
     def __update_torrent_remove_task(data):

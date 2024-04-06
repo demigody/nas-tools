@@ -646,7 +646,7 @@ class AutoSignIn(_IPluginModule):
         else:
             return self.__signin_base(site_info), signinTime, home_url
 
-    def __signin_base(self, site_info):
+    def signin_base(self, site_info):
         """
         通用签到处理
         :param site_info: 站点信息
@@ -658,6 +658,7 @@ class AutoSignIn(_IPluginModule):
         try:
             site_url = site_info.get("signurl")
             site_cookie = site_info.get("cookie")
+            site_apikey = site_info.get("apikey")
             ua = site_info.get("ua") or Config().get_ua()
             if not site_url or not site_cookie:
                 self.warn("未配置 %s 的站点地址或Cookie，无法签到" % str(site))
@@ -733,19 +734,15 @@ class AutoSignIn(_IPluginModule):
                 home_url = StringUtils.get_base_url(site_url)
                 if "m-team" in home_url:
                     home_url = f"{home_url}/api/member/updateLastBrowse"
-                    res = RequestUtils(cookies=site_cookie,
-                                       headers=ua,
-                                       proxies=Config().get_proxies() if site_info.get("proxy") else None
-                                       ).post_res(url=home_url)
+                    res = RequestUtils(headers=ua, apikey=site_apikey, proxies=Config().get_proxies() if site_info.get(
+                        "proxy") else None).post_res(url=home_url)
                     if res.json()["code"] == "0":
                         return f"【{site}】签到成功"
                     else:
                         return f"【{site}】签到失败"
                 else:
-                    res = RequestUtils(cookies=site_cookie,
-                                       headers=ua,
-                                       proxies=Config().get_proxies() if site_info.get("proxy") else None
-                                       ).get_res(url=home_url)
+                    res = RequestUtils(headers=ua, cookies=site_cookie, proxies=Config().get_proxies() if site_info.get(
+                        "proxy") else None).get_res(url=home_url)
                     if res and res.status_code in [200, 500, 403]:
                         if not SiteHelper.is_logged_in(res.text):
                             if under_challenge(res.text):

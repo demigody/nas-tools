@@ -61,7 +61,7 @@ class MtUserInfo:
         self._get_msg_search()
 
     def _get_data(self, url, json=None, data=None):
-        res = RequestUtils(content_type="application/json", cookies=self.site_info.get("cookie"),
+        res = RequestUtils(content_type="application/json", apikey=self.site_info.get('apikey'),
                            ua=self.site_info.get("ua") or Config().get_ua(),
                            proxies=self.site_info.get("proxy")
                            ).post_res(

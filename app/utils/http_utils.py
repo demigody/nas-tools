@@ -9,20 +9,13 @@ urllib3.disable_warnings(InsecureRequestWarning)
 class RequestUtils:
     _headers = None
     _cookies = None
+    _apikey = None
     _proxies = None
     _timeout = 20
     _session = None
 
-    def __init__(self,
-                 headers=None,
-                 cookies=None,
-                 ua=None,
-                 proxies=False,
-                 session=None,
-                 timeout=None,
-                 referer=None,
-                 content_type=None,
-                 accept_type=None):
+    def __init__(self, headers=None, cookies=None, ua=None, proxies=False, session=None, timeout=None, referer=None,
+                 content_type=None, accept_type=None, apikey=None):
         if not content_type:
             content_type = "application/x-www-form-urlencoded; charset=UTF-8"
         if headers:
@@ -40,6 +33,8 @@ class RequestUtils:
                 "User-Agent": Config().get_ua(),
                 "Accept": accept_type
             }
+        if apikey:
+            self._headers.update({"X-Api-Key": apikey})
         if referer:
             self._headers.update({
                 "referer": referer

@@ -1,13 +1,11 @@
 import json
 from datetime import datetime
-from typing import Tuple, Any
-
-from cachetools.func import lru_cache
 
 import log
 from app.conf import SystemConfig
 from app.helper import ChromeHelper, SiteHelper, DbHelper
 from app.message import Message
+from app.sites.mt import MtFunc
 from app.sites.site_limiter import SiteRateLimiter
 from app.utils import RequestUtils, StringUtils
 from app.utils.commons import singleton
@@ -65,11 +63,12 @@ class Sites:
             site_rssurl = site.RSSURL
             site_signurl = site.SIGNURL
             site_cookie = site.COOKIE
+            site_apikey = site.APIKEY
             site_uses = site.INCLUDE or ''
             uses = []
             if site_uses:
                 rss_enable = True if "D" in site_uses and site_rssurl else False
-                brush_enable = True if "S" in site_uses and site_rssurl and site_cookie else False
+                brush_enable = True if "S" in site_uses and site_rssurl and (site_cookie or site_apikey) else False
                 statistic_enable = True if "T" in site_uses and (site_rssurl or site_signurl) and site_cookie else False
                 uses.append("D") if rss_enable else None
                 uses.append("S") if brush_enable else None
@@ -85,6 +84,7 @@ class Sites:
                 "rssurl": site_rssurl,
                 "signurl": site_signurl,
                 "cookie": site_cookie,
+                "apikey": site_apikey,
                 "rule": site_note.get("rule"),
                 "download_setting": site_note.get("download_setting"),
                 "rss_enable": rss_enable,
@@ -280,7 +280,8 @@ class Sites:
         if not site_info:
             return False, "站点不存在", 0
         site_cookie = site_info.get("cookie")
-        if not site_cookie:
+        site_apikey = site_info.get("apikey")
+        if not (site_cookie or site_apikey):
             return False, "未配置站点Cookie", 0
         ua = site_info.get("ua") or Config().get_ua()
         site_url = StringUtils.get_base_url(site_info.get("signurl") or site_info.get("rssurl"))
@@ -314,63 +315,25 @@ class Sites:
             # 计时
             start_time = datetime.now()
             if 'm-team' in site_url:
-                return self.__get_apikey(site_info)
-            else:
-                res = RequestUtils(cookies=site_cookie,
-                                   headers=ua,
-                                   proxies=Config().get_proxies() if site_info.get("proxy") else None
-                                   ).get_res(url=site_url)
-            seconds = int((datetime.now() - start_time).microseconds / 1000)
-            if res and res.status_code == 200:
-                if not SiteHelper.is_logged_in(res.text):
-                    return False, "Cookie失效", seconds
-                else:
-                    return True, "连接成功", seconds
-            elif res is not None:
-                return False, f"连接失败，状态码：{res.status_code}", seconds
-            else:
-                return False, "无法打开网站", seconds
-
-    def __get_apikey(self, info) -> tuple[bool, str, int] | Any:
-        """
-        获取ApiKey
-        """
-        start_time = datetime.now()
-        domain_host = StringUtils.get_base_url(info.get("signurl"))
-        apikey = info.get("apiKey")
-        ua = info.get("ua") or Config().get_ua()
-        global seconds
-        if not apikey:
-            try:
-                response = RequestUtils(
-                    headers={
-                        "Content-Type": "application/json",
-                        "User-Agent": f"{ua}"
-                    },
-                    cookies=info.get("cookie"),
-                    proxies=info.get("proxy"),
-                    referer=domain_host + "/usercp?tab=laboratory",
-                    timeout=15
-                ).post_res(url=domain_host + "/api/apikey/getKeyList")
+                mt = MtFunc(site_info)
                 seconds = int((datetime.now() - start_time).microseconds / 1000)
-                if response and response.status_code == 200:
-                    if response.json()["code"] != "0":
-                        return False, "连接失败，请检查Cookie是否有效", seconds
-                    else:
-                        if len(response.json()["data"]) > 0:
-                            api_keys = response.json().get('data')
-                            # 按lastModifiedDate倒序排序
-                            api_keys.sort(key=lambda x: x.get('lastModifiedDate'), reverse=True)
-                            self._apikey = api_keys[0].get('apiKey')
-                            self.systemconfig.set(f"site.{StringUtils.get_url_host(domain_host)}.apikey", self._apikey)
-                            return True, "连接成功", seconds
-                        else:
-                            return False, "连接失败，请确认已创建ApiKey", seconds
+                if mt.signin():
+                    return True, "连接成功", seconds
                 else:
-                    return False, "连接失败", seconds
-            except Exception as e:
-                return False, "连接失败", seconds
-        return apikey
+                    return False, "连接失败,请检查APIKEY", seconds
+            else:
+                res = RequestUtils(headers=ua, cookies=site_cookie, proxies=Config().get_proxies() if site_info.get(
+                    "proxy") else None).get_res(url=site_url)
+                seconds = int((datetime.now() - start_time).microseconds / 1000)
+                if res and res.status_code == 200:
+                    if not SiteHelper.is_logged_in(res.text):
+                        return False, "Cookie失效", seconds
+                    else:
+                        return True, "连接成功", seconds
+                elif res is not None:
+                    return False, f"连接失败，状态码：{res.status_code}", seconds
+                else:
+                    return False, "无法打开网站", seconds
 
     @staticmethod
     def __get_site_note_items(note):
@@ -383,7 +346,7 @@ class Sites:
         return infos
 
     def add_site(self, name, site_pri,
-                 rssurl=None, signurl=None, cookie=None, note=None, rss_uses=None):
+                 rssurl=None, signurl=None, cookie=None, note=None, rss_uses=None, apikey=None):
         """
         添加站点
         """
@@ -392,13 +355,14 @@ class Sites:
                                                rssurl=rssurl,
                                                signurl=signurl,
                                                cookie=cookie,
+                                               apikey=apikey,
                                                note=note,
                                                rss_uses=rss_uses)
         self.init_config()
         return ret
 
     def update_site(self, tid, name, site_pri,
-                    rssurl, signurl, cookie, note, rss_uses):
+                    rssurl, signurl, cookie, note, rss_uses, apikey=None):
         """
         更新站点
         """
@@ -408,6 +372,7 @@ class Sites:
                                                rssurl=rssurl,
                                                signurl=signurl,
                                                cookie=cookie,
+                                               apikey=apikey,
                                                note=note,
                                                rss_uses=rss_uses)
         self.init_config()
@@ -453,3 +418,16 @@ class Sites:
             return True, hhanclub_pattern
         else:
             return False, None
+
+    @staticmethod
+    def update_api_key(signurl, cookie, ua, proxy):
+        if 'm-team' in signurl:
+            _site_info = {
+                "cookie": cookie,
+                "ua": ua,
+                "proxy": proxy,
+                "strict_url": StringUtils.get_base_url(signurl)
+            }
+            _mt = MtFunc(_site_info)
+            return _mt.update_api_key()
+        return False, ""

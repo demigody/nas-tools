@@ -66,22 +66,14 @@ class Torrent:
         if url.startswith("["):
             # 需要解码获取下载地址
             url = self.get_redict_url(url=url)
-        req = RequestUtils(
-            headers=ua,
-            cookies=cookie,
-            referer=referer,
-            proxies=Config().get_proxies() if proxy else None
-        ).get_res(url=url, allow_redirects=False)
+        req = RequestUtils(headers=ua, cookies=cookie, proxies=Config().get_proxies() if proxy else None,
+                           referer=referer).get_res(url=url, allow_redirects=False)
         while req and req.status_code in [301, 302]:
             url = req.headers['Location']
             if url and url.startswith("magnet:"):
                 return None, url, f"获取到磁力链接：{url}"
-            req = RequestUtils(
-                headers=ua,
-                cookies=cookie,
-                referer=referer,
-                proxies=Config().get_proxies() if proxy else None
-            ).get_res(url=url, allow_redirects=False)
+            req = RequestUtils(headers=ua, cookies=cookie, proxies=Config().get_proxies() if proxy else None,
+                               referer=referer).get_res(url=url, allow_redirects=False)
         if req and req.status_code == 200:
             if not req.content:
                 return None, None, "未下载到种子数据"
@@ -106,12 +98,9 @@ class Torrent:
                             for item in inputs:
                                 data[item[0]] = item[1]
                             # 改写req
-                            req = RequestUtils(
-                                headers=ua,
-                                cookies=cookie,
-                                referer=referer,
-                                proxies=Config().get_proxies() if proxy else None
-                            ).post_res(url=action, data=data)
+                            req = RequestUtils(headers=ua, cookies=cookie,
+                                               proxies=Config().get_proxies() if proxy else None,
+                                               referer=referer).post_res(url=action, data=data)
                             if req and req.status_code == 200:
                                 # 检查是不是种子文件，如果不是抛出异常
                                 bdecode(req.content)
@@ -180,14 +169,10 @@ class Torrent:
                 headers = None
             if req_params.get('method') == 'get':
                 # GET请求
-                result = RequestUtils(
-                    headers=headers
-                ).get_res(url, params=req_params.get('params'))
+                result = RequestUtils(headers=headers).get_res(url, params=req_params.get('params'))
             else:
                 # POST请求
-                result = RequestUtils(
-                    headers=headers
-                ).post_res(url, params=req_params.get('params'))
+                result = RequestUtils(headers=headers).post_res(url, params=req_params.get('params'))
             if not result:
                 return None
             if not req_params.get('result'):

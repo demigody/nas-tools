@@ -36,10 +36,7 @@ class HDCity(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 获取页面html
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://hdcity.city/sign")
+        html_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).get_res(url="https://hdcity.city/sign")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'

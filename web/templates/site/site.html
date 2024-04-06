@@ -152,16 +152,17 @@
         <div class="row">
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">站点地址 <span class="form-help"
-                  title="站点访问地址，站点签到、数据统计、刷流、内置索引器等将使用"
-                  data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">站点地址
+                <span class="form-help" title="站点访问地址，站点签到、数据统计、刷流、内置索引器等将使用" data-bs-toggle="tooltip">?</span>
+              </label>
               <input type="text" class="form-control" id="site_signurl" value="" placeholder="站点http地址">
             </div>
           </div>
           <div class="col-lg-6">
             <div class="mb-3">
-              <label class="form-label required">站点用途 <span class="form-help" title="设置站点使用场景，选中的场景才会使用该站点"
-                  data-bs-toggle="tooltip">?</span></label>
+              <label class="form-label required">站点用途
+                <span class="form-help" title="设置站点使用场景，选中的场景才会使用该站点" data-bs-toggle="tooltip">?</span>
+              </label>
               <div class="form-selectgroup">
                 <label class="form-selectgroup-item">
                   <input type="checkbox" name="site_uses" value="D" class="form-selectgroup-input" checked>
@@ -179,11 +180,27 @@
             </div>
           </div>
         </div>
-        <div class="col-lg-12">
-          <div class="mb-3">
-            <label class="form-label">COOKIE <span class="form-help"
-                title="站点的Cookie，用于站点自动签到、站点数据统计、刷流、内置索引器等，需要在浏览器中F12->网络页抓取" data-bs-toggle="tooltip">?</span></label>
-            <textarea class="form-control" id="site_cookie" rows="2" placeholder="站点COOKIE"></textarea>
+        <div class="row" id="cookie_row">
+            <div class="col-lg-12">
+              <div class="mb-3">
+                <label class="form-label">COOKIE
+                  <span class="form-help" title="站点的Cookie，用于站点自动签到、站点数据统计、刷流、内置索引器等，需要在浏览器中F12->网络页抓取" data-bs-toggle="tooltip">?</span>
+                </label>
+                <textarea class="form-control" id="site_cookie" rows="2" placeholder="站点COOKIE"></textarea>
+              </div>
+            </div>
+        </div>
+        <div class="row" id="apikey_row">
+          <div class="col-lg-12">
+            <div class="mb-3">
+                <label class="form-label">APIKEY
+                  <span class="form-help" title="站点的APIKEY，用于站点自动签到、站点数据统计、刷流、内置索引器等，需要在站点控制台-实验室获取" data-bs-toggle="tooltip">?</span>
+                </label>
+                <textarea class="form-control" id="site_apikey" rows="2" placeholder="站点APIKEY"></textarea>
+            </div>
+            <div>
+            <button id="update-api-key_btn" class="btn btn-primary">更新APIKEY</button>
+             </div>
           </div>
         </div>
         <div class="row">
@@ -470,8 +487,21 @@
   </div>
 </div>
 <script type="text/javascript">
+// 监听站点地址输入框的变化事件
+$("#site_signurl").on("input", function() {
+  var inputValue = $(this).val();
+
+  // 判断输入的值是否包含 "m-team"
+  if (inputValue.includes("m-team")) {
+    // 显示 APIKEY
+    $("#apikey_row").show();
+  }
+});
+
+
   //打开新增站点框
   function show_site_modal() {
+    $("#apikey_row").hide();
     $("#site_id").val('');
     $("#site_name").val('');
     $("#site_pri").val('1');
@@ -500,6 +530,12 @@
     $("#site_close_btn").text("删除");
     //根据ID查询详细信息
     ajax_post("get_site", { "id": tid }, function (ret) {
+        // 显示或隐藏apikey_row模块
+        if (ret.site.apikey) {
+            $("#apikey_row").show();
+        } else {
+            $("#apikey_row").hide();
+        }
       if (ret.site) {
         $("#site_id").val(ret.site.id);
         $("#site_name").val(ret.site.name);
@@ -507,6 +543,7 @@
         $("#site_rssurl").val(ret.site.rssurl);
         $("#site_signurl").val(ret.site.signurl);
         $("#site_cookie").val(ret.site.cookie);
+        $("#site_apikey").val(ret.site.apikey);
         $("#site_ua").val(ret.site.ua);
         $("#site_download_setting").val(ret.site.download_setting);
         if (ret.site.parse) {
@@ -544,7 +581,7 @@
         $("#modal-site").modal("show");
       }
       $("#site_rule").val(ret.site.rule);
-    });
+      });
   }
 
   //删除站点
@@ -555,7 +592,7 @@
   }
 
   //新增站点
-  function add_or_edit_site() {
+  function add_or_edit_site(isApi) {
     //id
     let site_id = $("#site_id").val();
     //名称
@@ -584,6 +621,8 @@
     }
     //Cookie
     let site_cookie = $("#site_cookie").val();
+    //Apikey
+    let site_apikey = $("#site_apikey").val();
     //RSS URL
     let site_rssurl = $("#site_rssurl").val();
     if (site_rssurl) {
@@ -639,6 +678,7 @@
       "site_rssurl": site_rssurl,
       "site_signurl": site_signurl,
       "site_cookie": site_cookie,
+      "site_apikey": site_apikey,
       "site_include": site_uses,
       "site_note": {
         "rule": site_rule,
@@ -655,13 +695,27 @@
         "limit_seconds": limit_seconds
       }
     }
-
+    var originalText =  $("#add_or_edit_site_btn").text();
     $("#add_or_edit_site_btn").text("处理中...").attr("disabled", true);
+    $("#update-api-key_btn").text("处理中...").attr("disabled", true);
     // 发送请求
-    ajax_post("update_site", data, function (ret) {
-      $("#add_or_edit_site_btn").attr("disabled", false).text("新增");
-      $("#modal-site").modal("hide");
-      if (ret === undefined) {
+    ajax_post(isApi ? "update_api_key" : "update_site", data, function (ret) {
+      $("#add_or_edit_site_btn").attr("disabled", false).text(originalText);
+      $("#update-api-key_btn").text("更新APIKEY").attr("disabled", false);
+     if (isApi){
+           if (ret.code === "0"){
+            show_success_modal("更新成功", function () {
+          GlobalModalAbort = true;
+          $("#site_apikey").val(ret.apikey);
+        });
+        }else {
+           show_fail_modal(ret.msg, function () {
+          GlobalModalAbort = true;
+        });
+        }
+     } else {
+       $("#modal-site").modal("hide");
+          if (ret === undefined) {
         show_fail_modal("！", function () {
           GlobalModalAbort = true;
           window_history_refresh();
@@ -676,12 +730,16 @@
       }
       //刷新页面
       window_history_refresh();
+      }
+
     });
   }
 
   //关闭或者删除
   function close_or_del() {
     $("#modal-site").modal("hide");
+    $("#site_apikey").hide();
+    $("#site_cookie").show();
     let tid = $("#site_id").val();
     if (tid) {
       del_site(tid);
@@ -690,7 +748,10 @@
 
   //绑定事件
   $("#add_or_edit_site_btn").unbind("click").click(function () {
-    add_or_edit_site();
+    add_or_edit_site(false);
+  });
+  $("#update-api-key_btn").unbind("click").click(function () {
+    add_or_edit_site(true);
   });
   $("#site_close_btn").unbind("click").click(function () {
     close_or_del();
@@ -871,7 +932,6 @@
       }
     });
   }
-
   // 站点测试按钮
   $("#sitetest_btn").unbind("click").click(async function () {
     let btn_obj = $(this);

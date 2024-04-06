@@ -29,15 +29,10 @@ class TorrentLeech(object):
             url = self._searchurl % (self._indexer.domain, quote(keyword))
         else:
             url = self._browseurl % (self._indexer.domain, int(page) + 1)
-        res = RequestUtils(
-            headers={
-                "Content-Type": "application/json; charset=utf-8",
-                "User-Agent": f"{self._indexer.ua}"
-            },
-            cookies=self._indexer.cookie,
-            proxies=self._proxy,
-            timeout=30
-        ).get_res(url)
+        res = RequestUtils(headers={
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": f"{self._indexer.ua}"
+        }, cookies=self._indexer.cookie, proxies=self._proxy, timeout=30).get_res(url)
         torrents = []
         if res and res.status_code == 200:
             results = res.json().get('torrentList') or []

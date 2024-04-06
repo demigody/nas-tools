@@ -72,10 +72,8 @@ class BTSchool(_ISiteSigninHandler):
                 return True, f'【{site}】签到成功'
         else:
             self.info(f"{site} 开始签到")
-            html_res = RequestUtils(cookies=site_cookie,
-                                    headers=ua,
-                                    proxies=proxy
-                                    ).get_res(url="https://pt.btschool.club")
+            html_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                    proxies=proxy).get_res(url="https://pt.btschool.club")
             if not html_res or html_res.status_code != 200:
                 self.error(f"签到失败，请检查站点连通性")
                 return False, f'【{site}】签到失败，请检查站点连通性'
@@ -89,10 +87,8 @@ class BTSchool(_ISiteSigninHandler):
                 self.info(f"今日已签到")
                 return True, f'【{site}】今日已签到'
 
-            sign_res = RequestUtils(cookies=site_cookie,
-                                    headers=ua,
-                                    proxies=proxy
-                                    ).get_res(url="https://pt.btschool.club/index.php?action=addbonus")
+            sign_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                    proxies=proxy).get_res(url="https://pt.btschool.club/index.php?action=addbonus")
             if not sign_res or sign_res.status_code != 200:
                 self.error(f"签到失败，签到接口请求失败")
                 return False, f'【{site}】签到失败，签到接口请求失败'

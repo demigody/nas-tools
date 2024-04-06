@@ -444,8 +444,7 @@ class RssChecker(object):
                 rss_url = "%s?%s" % (rss_url, param_url) if rss_url.find("?") == -1 else "%s&%s" % (rss_url, param_url)
             # 请求数据
             try:
-                ret = RequestUtils(proxies=Config().get_proxies() if taskinfo.get("proxy") else None
-                                   ).get_res(rss_url)
+                ret = RequestUtils(proxies=Config().get_proxies() if taskinfo.get("proxy") else None).get_res(rss_url)
                 if not ret:
                     continue
                 ret.encoding = ret.apparent_encoding

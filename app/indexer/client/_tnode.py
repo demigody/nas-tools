@@ -37,9 +37,7 @@ class TNodeSpider(object):
     def __get_token(self):
         if not self._domain:
             return
-        res = RequestUtils(headers=self._ua,
-                           cookies=self._cookie,
-                           proxies=self._proxy,
+        res = RequestUtils(headers=self._ua, cookies=self._cookie, proxies=self._proxy,
                            timeout=15).get_res(url=self._domain)
         if res and res.status_code == 200:
             csrf_token = re.search(r'<meta name="x-csrf-token" content="(.+?)">', res.text)
@@ -65,16 +63,11 @@ class TNodeSpider(object):
             "resolution": [],
             "group": []
         }
-        res = RequestUtils(
-            headers={
-                'X-CSRF-TOKEN': self._token,
-                "Content-Type": "application/json; charset=utf-8",
-                "User-Agent": f"{self._ua}"
-            },
-            cookies=self._cookie,
-            proxies=self._proxy,
-            timeout=30
-        ).post_res(url=self._searchurl, json=params)
+        res = RequestUtils(headers={
+            'X-CSRF-TOKEN': self._token,
+            "Content-Type": "application/json; charset=utf-8",
+            "User-Agent": f"{self._ua}"
+        }, cookies=self._cookie, proxies=self._proxy, timeout=30).post_res(url=self._searchurl, json=params)
         torrents = []
         if res and res.status_code == 200:
             results = res.json().get('data', {}).get("torrents") or []

@@ -303,8 +303,7 @@ class SiteCookie(object):
         """
         if not image_url:
             return ""
-        ret = RequestUtils(headers=chrome.get_ua(),
-                           cookies=chrome.get_cookies()).get_res(image_url)
+        ret = RequestUtils(headers=chrome.get_ua(), cookies=chrome.get_cookies()).get_res(image_url)
         if ret:
             return base64.b64encode(ret.content).decode()
         return ""

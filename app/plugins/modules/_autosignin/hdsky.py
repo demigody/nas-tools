@@ -38,10 +38,7 @@ class HDSky(_ISiteSigninHandler):
         proxy = Config().get_proxies() if site_info.get("proxy") else None
 
         # 判断今日是否已签到
-        index_res = RequestUtils(cookies=site_cookie,
-                                 headers=ua,
-                                 proxies=proxy
-                                 ).get_res(url='https://hdsky.me')
+        index_res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxy).get_res(url='https://hdsky.me')
         if not index_res or index_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -60,11 +57,9 @@ class HDSky(_ISiteSigninHandler):
         res_times = 0
         img_hash = None
         while not img_hash and res_times <= 3:
-            image_res = RequestUtils(cookies=site_cookie,
-                                     headers=ua,
-                                     proxies=proxy
-                                     ).post_res(url='https://hdsky.me/image_code_ajax.php',
-                                                data={'action': 'new'})
+            image_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                     proxies=proxy).post_res(url='https://hdsky.me/image_code_ajax.php',
+                                                             data={'action': 'new'})
             if image_res and image_res.status_code == 200:
                 image_json = json.loads(image_res.text)
                 if image_json["success"]:
@@ -105,10 +100,8 @@ class HDSky(_ISiteSigninHandler):
                     'imagestring': ocr_result
                 }
                 # 访问签到链接
-                res = RequestUtils(cookies=site_cookie,
-                                   headers=ua,
-                                   proxies=proxy
-                                   ).post_res(url='https://hdsky.me/showup.php', data=data)
+                res = RequestUtils(headers=ua, cookies=site_cookie,
+                                   proxies=proxy).post_res(url='https://hdsky.me/showup.php', data=data)
                 if res and res.status_code == 200:
                     if json.loads(res.text)["success"]:
                         self.info(f"签到成功")

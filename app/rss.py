@@ -10,7 +10,7 @@ from app.media.meta import MetaInfo
 from app.message import Message
 from app.sites import Sites, SiteConf
 from app.subscribe import Subscribe
-from app.utils import ExceptionUtils, Torrent
+from app.utils import ExceptionUtils, Torrent, JsonUtils
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
 

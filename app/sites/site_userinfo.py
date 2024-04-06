@@ -83,11 +83,7 @@ class SiteUserInfo(object):
             html_text = chrome.get_html()
         else:
             proxies = Config().get_proxies() if proxy else None
-            res = RequestUtils(cookies=site_cookie,
-                               session=session,
-                               headers=ua,
-                               proxies=proxies
-                               ).get_res(url=url)
+            res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxies, session=session).get_res(url=url)
             if res and res.status_code == 200:
                 if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                     res.encoding = "UTF-8"
@@ -101,11 +97,8 @@ class SiteUserInfo(object):
                         return None
                     tmp_url = url + html_text[i:html_text.find(";")] \
                         .replace("\"", "").replace("+", "").replace(" ", "").replace("window.location=", "")
-                    res = RequestUtils(cookies=site_cookie,
-                                       session=session,
-                                       headers=ua,
-                                       proxies=proxies
-                                       ).get_res(url=tmp_url)
+                    res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxies,
+                                       session=session).get_res(url=tmp_url)
                     if res and res.status_code == 200:
                         if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                             res.encoding = "UTF-8"
@@ -120,11 +113,8 @@ class SiteUserInfo(object):
 
                 # 兼容假首页情况，假首页通常没有 <link rel="search" 属性
                 if '"search"' not in html_text and '"csrf-token"' not in html_text:
-                    res = RequestUtils(cookies=site_cookie,
-                                       session=session,
-                                       headers=ua,
-                                       proxies=proxies
-                                       ).get_res(url=url + "/index.php")
+                    res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxies,
+                                       session=session).get_res(url=url + "/index.php")
                     if res and res.status_code == 200:
                         if "charset=utf-8" in res.text or "charset=UTF-8" in res.text:
                             res.encoding = "UTF-8"
@@ -172,11 +162,8 @@ class SiteUserInfo(object):
         need_goto_user_detail_fetch, user_detail_pattern = self.sites.need_goto_user_detail_fetch(site_id=site_id)
         if need_goto_user_detail_fetch:
             proxies = Config().get_proxies() if proxy else None
-            res = RequestUtils(cookies=site_cookie,
-                               session=requests.Session(),
-                               headers=ua,
-                               proxies=proxies
-                               ).get_res(url=site_url)
+            res = RequestUtils(headers=ua, cookies=site_cookie, proxies=proxies,
+                               session=requests.Session()).get_res(url=site_url)
             if res and res.status_code == 200:
                 try:
                     matches = re.findall(user_detail_pattern, res.text)

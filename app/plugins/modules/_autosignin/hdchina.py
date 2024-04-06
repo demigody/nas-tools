@@ -53,10 +53,8 @@ class HDChina(_ISiteSigninHandler):
 
         site_cookie = cookie
         # 获取页面html
-        html_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).get_res(url="https://hdchina.org/index.php")
+        html_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                proxies=proxy).get_res(url="https://hdchina.org/index.php")
         if not html_res or html_res.status_code != 200:
             self.error(f"签到失败，请检查站点连通性")
             return False, f'【{site}】签到失败，请检查站点连通性'
@@ -93,10 +91,8 @@ class HDChina(_ISiteSigninHandler):
         data = {
             'csrf': x_csrf
         }
-        sign_res = RequestUtils(cookies=site_cookie,
-                                headers=ua,
-                                proxies=proxy
-                                ).post_res(url="https://hdchina.org/plugin_sign-in.php?cmd=signin", data=data)
+        sign_res = RequestUtils(headers=ua, cookies=site_cookie,
+                                proxies=proxy).post_res(url="https://hdchina.org/plugin_sign-in.php?cmd=signin", data=data)
         if not sign_res or sign_res.status_code != 200:
             self.error(f"签到失败，签到接口请求失败")
             return False, f'【{site}】签到失败，签到接口请求失败'

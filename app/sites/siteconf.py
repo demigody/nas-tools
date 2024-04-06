@@ -167,11 +167,8 @@ class SiteConf:
                 time.sleep(10)
                 return chrome.get_html()
         else:
-            res = RequestUtils(
-                cookies=cookie,
-                headers=ua,
-                proxies=Config().get_proxies() if proxy else None
-            ).get_res(url=url)
+            res = RequestUtils(headers=ua, cookies=cookie,
+                               proxies=Config().get_proxies() if proxy else None).get_res(url=url)
             if res and res.status_code == 200:
                 res.encoding = res.apparent_encoding
                 return res.text

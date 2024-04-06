@@ -144,8 +144,7 @@ class OpenSubtitles(_IPluginModule):
                 Media_File = "%s.chi.zh-cn%s" % (item_file, item_file_ext)
                 self.info("正在从opensubtitles.org下载字幕 %s 到 %s " % (SubFileName, Media_File))
                 # 下载
-                ret = RequestUtils(cookies=self._cookie,
-                                   headers=self._ua).get_res(Download_Link)
+                ret = RequestUtils(headers=self._ua, cookies=self._cookie).get_res(Download_Link)
                 if ret and ret.status_code == 200:
                     # 保存ZIP
                     file_name = self.sitehelper.get_url_subtitle_name(ret.headers.get('content-disposition'), Download_Link)
