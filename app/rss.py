@@ -10,7 +10,7 @@ from app.media.meta import MetaInfo
 from app.message import Message
 from app.sites import Sites, SiteConf
 from app.subscribe import Subscribe
-from app.utils import ExceptionUtils, Torrent, JsonUtils
+from app.utils import ExceptionUtils, Torrent
 from app.utils.commons import singleton
 from app.utils.types import MediaType, SearchType
 
@@ -117,6 +117,7 @@ class Rss:
                 # 站点信息
                 site_id = site_info.get("id")
                 site_cookie = site_info.get("cookie")
+                site_apikey = site_info.get("apikey")
                 site_ua = site_info.get("ua")
                 # 是否解析种子详情
                 site_parse = site_info.get("parse")
@@ -130,7 +131,7 @@ class Rss:
                     site_order = 100 - int(site_info.get("pri"))
                 else:
                     site_order = 0
-                rss_acticles = self.rsshelper.parse_rssxml(url=rss_url)
+                rss_acticles = self.rsshelper.parse_rssxml(site_info, url=rss_url)
                 if rss_acticles is None:
                     # RSS链接过期
                     log.error(f"【Rss】站点 {site_name} RSS链接已过期，请重新获取！")
@@ -196,6 +197,7 @@ class Rss:
                             site_id=site_id,
                             site_filter_rule=site_fliter_rule,
                             site_cookie=site_cookie,
+                            site_apikey=site_apikey,
                             site_parse=site_parse,
                             site_ua=site_ua,
                             site_proxy=site_proxy)
@@ -330,6 +332,7 @@ class Rss:
                           site_id,
                           site_filter_rule,
                           site_cookie,
+                          site_apikey,
                           site_parse,
                           site_ua,
                           site_proxy):
@@ -341,6 +344,7 @@ class Rss:
         :param site_id: 站点ID
         :param site_filter_rule: 站点过滤规则
         :param site_cookie: 站点的Cookie
+        :param site_apikey: 站点的apikey
         :param site_parse: 是否解析种子详情
         :param site_ua: 站点请求UA
         :param site_proxy: 是否使用代理
@@ -455,6 +459,7 @@ class Rss:
                 # 检测Free
                 torrent_attr = self.siteconf.check_torrent_attr(torrent_url=media_info.page_url,
                                                                 cookie=site_cookie,
+                                                                apikey=site_apikey,
                                                                 ua=site_ua,
                                                                 proxy=site_proxy)
                 if torrent_attr.get('2xfree'):

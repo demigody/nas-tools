@@ -12,10 +12,11 @@ class RssHelper:
     _db = MainDb()
 
     @staticmethod
-    def parse_rssxml(url, proxy=False):
+    def parse_rssxml(site_info, url, proxy=False):
         """
         解析RSS订阅URL，获取RSS中的种子信息
         :param url: RSS地址
+        :param site_info: site_info
         :param proxy: 是否使用代理
         :return: 种子信息列表，如为None代表Rss过期
         """
@@ -66,13 +67,14 @@ class RssHelper:
                         enclosure = DomUtils.tag_value(item, "enclosure", "url", default="")
                         if not enclosure and not link:
                             continue
-                        # 部分RSS只有link没有enclosure
-                        if not enclosure and link:
-                            enclosure = link
-                            link = None
                         # 大小
                         size = 0
+                        # 处理mt_enclosure
                         if 'm-team' in enclosure:
+                            res = re.findall(r'\d+', link)
+                            torrent_id = res[0]
+                            from app.sites.mt import MtFunc
+                            enclosure = MtFunc(site_info).get_download_url(torrent_id)
                             match = re.search(r'\[([^]]+)]$', title)
                             if match:
                                 content = match.group(1)
@@ -83,6 +85,11 @@ class RssHelper:
                             size = DomUtils.tag_value(item, "enclosure", "length", default=0)
                             if size and str(size).isdigit():
                                 size = int(size)
+                            # 部分RSS只有link没有enclosure
+                            if not enclosure and link:
+                                enclosure = link
+                                link = None
+
                         # 发布日期
                         pubdate = DomUtils.tag_value(item, "pubDate", default="")
                         if pubdate:

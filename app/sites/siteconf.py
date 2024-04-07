@@ -104,6 +104,7 @@ class SiteConf:
         检验种子是否免费，当前做种人数
         :param torrent_url: 种子的详情页面
         :param cookie: 站点的Cookie
+        :param apikey: 站点的Apikey
         :param ua: 站点的ua
         :param proxy: 是否使用代理
         :return: 种子属性，包含FREE 2XFREE HR PEER_COUNT等属性
@@ -181,7 +182,7 @@ class SiteConf:
                 ExceptionUtils.exception_traceback(err)
         # 随机休眼后再返回
         time.sleep(round(random.uniform(1, 5), 1))
-        return ret_attr, torrent_id
+        return ret_attr
 
     @staticmethod
     @lru_cache(maxsize=128)

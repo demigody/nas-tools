@@ -11,12 +11,9 @@ import log
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper, RssHelper
-from app.indexer import Indexer
-from app.indexer.client._mt_spider import MTorrentSpider
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.sites import Sites, SiteConf
-from app.sites.mt import MtFunc
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import BrushDeleteType
@@ -32,7 +29,6 @@ class BrushTask(object):
     dbhelper = None
     rsshelper = None
     downloader = None
-    torrent_id = None
     _scheduler = None
     _brush_tasks = {}
     _torrents_cache = []
@@ -212,7 +208,7 @@ class BrushTask(object):
                                            site_info=site_info):
             return
 
-        rss_result = self.rsshelper.parse_rssxml(url=rss_url, proxy=site_proxy)
+        rss_result = self.rsshelper.parse_rssxml(site_info, url=rss_url, proxy=site_proxy)
         if rss_result is None:
             # RSS链接过期
             log.error(f"【Brush】{task_name} RSS链接已过期，请重新获取！")
@@ -243,10 +239,7 @@ class BrushTask(object):
                 # 种子链接
                 enclosure = res.get('enclosure')
                 # 种子页面
-                if 'm-team' in enclosure:
-                    page_url = enclosure
-                else:
-                    page_url = res.get('link')
+                page_url = res.get('link')
                 # 种子大小
                 size = res.get('size')
                 # 发布时间
@@ -282,10 +275,6 @@ class BrushTask(object):
                     continue
                 # 开始下载
                 log.debug("【Brush】%s 符合条件，开始下载..." % torrent_name)
-
-                # 处理mt_enclosure
-                if 'm-team' in enclosure:
-                    enclosure = MtFunc(site_info).get_download_url(self.torrent_id)
 
                 if self.__download_torrent(taskinfo=taskinfo,
                                            rss_rule=rss_rule,
@@ -800,12 +789,11 @@ class BrushTask(object):
             if self.sites.check_ratelimit(siteid):
                 return False
 
-            torrent_attr, torrent_id = self.siteconf.check_torrent_attr(torrent_url=torrent_url,
+            torrent_attr = self.siteconf.check_torrent_attr(torrent_url=torrent_url,
                                                                         cookie=cookie,
                                                                         apikey=apikey,
                                                                         ua=ua,
                                                                         proxy=proxy)
-            self.torrent_id = torrent_id
             torrent_peer_count = torrent_attr.get("peer_count")
             log.debug("【Brush】%s 解析详情, %s" % (title, torrent_attr))
 
