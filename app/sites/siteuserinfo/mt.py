@@ -62,7 +62,7 @@ class MtUserInfo:
 
     def _get_data(self, url, json=None, data=None):
         res = RequestUtils(content_type="application/json", apikey=self.site_info.get('apikey'),
-                           ua=self.site_info.get("ua") or Config().get_ua(),
+                           ua=self.site_info.get("ua") or Config().get_ua(), cookies=self.site_info.get('cookie'),
                            proxies=self.site_info.get("proxy")
                            ).post_res(
             url=url % self.site_info.get("strict_url"), params=data, json=json)
@@ -71,9 +71,9 @@ class MtUserInfo:
             if res.json().get("code") == "0":
                 return data
             else:
-                self.err_msg = f"【Sites】站点 {self.site_info.get('name')} 获取数据出错，请检查Cookie是否过期"
+                self.err_msg = f"【Sites】站点 {self.site_info.get('name')} 获取数据出错，请检查Cookie或Apikey是否过期"
         else:
-            self.err_msg = f"【Sites】站点 {self.site_info.get('name')} 获取数据出错，请检查Cookie是否过期"
+            self.err_msg = f"【Sites】站点 {self.site_info.get('name')} 获取数据出错，请检查Cookie或Apikey是否过期"
 
     def _get_user_info(self):
         self.user_info_data = self._get_data(MtUserInfo._user_info_url)
@@ -99,8 +99,9 @@ class MtUserInfo:
         boxes = [-1, -2, 1]
         for b in boxes:
             msg_search_params = MtUserInfo.__init_msg_search_params(b)
-            self.msg_search_data_list += self._get_data(MtUserInfo._msg_search_url,
-                                                        data=msg_search_params).get('data')
+            msg_search_data_res = self._get_data(MtUserInfo._msg_search_url,data=msg_search_params)
+            if self.err_msg is None:
+                self.msg_search_data_list += msg_search_data_res.get('data')
 
     @staticmethod
     def __init_torrent_list_params(user_id, page_no):

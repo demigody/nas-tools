@@ -318,7 +318,13 @@ class Downloader:
             content, dl_files_folder, dl_files, retmsg = Torrent().read_torrent_content(torrent_file)
         else:
             # 没有种子文件解析链接
-            url = media_info.enclosure
+            dl_enclosure = media_info.enclosure
+            if dl_enclosure.startswith("["):
+                # 需要解码获取下载地址
+                url = Torrent.get_download_url(url=dl_enclosure)
+            else:
+                url = dl_enclosure if Sites().get_sites_by_url_domain(
+                    dl_enclosure) else Torrent.format_enclosure(dl_enclosure)
             if not url:
                 __download_fail("下载链接为空")
                 return None, None, "下载链接为空"

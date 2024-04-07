@@ -246,7 +246,10 @@ class BuiltinIndexer(_IIndexClient):
         elif indexer.parser == "TorrentLeech":
             error_flag, result_array = TorrentLeech(indexer).search(keyword=keyword,
                                                                     page=page)
-        else:   
+        elif 'm-team' in indexer.domain:
+            error_flag, result_array = MTorrentSpider(indexer).search(keyword=keyword,
+                                                                    page=page)
+        else:
             if PluginsSpider().status(indexer=indexer):
                 error_flag, result_array = PluginsSpider().search(keyword=keyword, 
                                                                   indexer=indexer, 

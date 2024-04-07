@@ -1,9 +1,11 @@
+import re
 import xml.dom.minidom
 
 from app.db import MainDb, DbPersist
 from app.db.models import RSSTORRENTS
 from app.utils import RssTitleUtils, StringUtils, RequestUtils, ExceptionUtils, DomUtils
 from config import Config
+from third_party.feapder.feapder.utils.log import log
 
 
 class RssHelper:
@@ -46,6 +48,7 @@ class RssHelper:
                 dom_tree = xml.dom.minidom.parseString(ret_xml)
                 rootNode = dom_tree.documentElement
                 items = rootNode.getElementsByTagName("item")
+                err_msg = None
                 for item in items:
                     try:
                         # 标题
@@ -68,11 +71,18 @@ class RssHelper:
                             enclosure = link
                             link = None
                         # 大小
-                        size = DomUtils.tag_value(item, "enclosure", "length", default=0)
-                        if size and str(size).isdigit():
-                            size = int(size)
+                        size = 0
+                        if 'm-team' in enclosure:
+                            match = re.search(r'\[([^]]+)]$', title)
+                            if match:
+                                content = match.group(1)
+                                size = StringUtils.num_filesize(content)
+                            else:
+                                err_msg = "RSS链接中未订阅查询种子大小，无法获取数据"
                         else:
-                            size = 0
+                            size = DomUtils.tag_value(item, "enclosure", "length", default=0)
+                            if size and str(size).isdigit():
+                                size = int(size)
                         # 发布日期
                         pubdate = DomUtils.tag_value(item, "pubDate", default="")
                         if pubdate:
@@ -89,11 +99,14 @@ class RssHelper:
                     except Exception as e1:
                         ExceptionUtils.exception_traceback(e1)
                         continue
+                if err_msg:
+                    log.warning(err_msg)
             except Exception as e2:
                 # RSS过期 观众RSS 链接已过期，您需要获得一个新的！  pthome RSS Link has expired, You need to get a new one!
                 if ret_xml in _rss_expired_msg:
                     return None
                 ExceptionUtils.exception_traceback(e2)
+
         return ret_array
 
     @DbPersist(_db)

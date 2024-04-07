@@ -563,19 +563,13 @@ class WebAction:
         dl_setting = data.get("setting")
         results = Searcher().get_search_result_by_id(dl_id)
         for res in results:
-            if res.ENCLOSURE.startswith("["):
-                # 需要解码获取下载地址
-                dl_enclosure = Torrent.get_redict_url(url=res.ENCLOSURE)
-            else:
-                dl_enclosure = res.ENCLOSURE if Sites().get_sites_by_url_domain(
-                    res.ENCLOSURE) else Torrent.format_enclosure(res.ENCLOSURE)
             # TODO 下载链接或媒体信息有问题，仍会显示添加成功
-            if not dl_enclosure:
+            if not res.ENCLOSURE:
                 continue
             media = Media().get_media_info(title=res.TORRENT_NAME, subtitle=res.DESCRIPTION)
             if not media:
                 continue
-            media.set_torrent_info(enclosure=dl_enclosure,
+            media.set_torrent_info(enclosure=res.ENCLOSURE,
                                    size=res.SIZE,
                                    site=res.SITE,
                                    page_url=res.PAGEURL,
@@ -612,8 +606,7 @@ class WebAction:
             return {"code": -1, "msg": "种子信息有误"}
         media = Media().get_media_info(title=title, subtitle=description)
         media.site = site
-        media.enclosure = enclosure if Sites().get_sites_by_url_domain(enclosure) else Torrent.format_enclosure(
-            enclosure)
+        media.enclosure = enclosure
         media.page_url = page_url
         media.size = size
         media.upload_volume_factor = float(uploadvolumefactor)

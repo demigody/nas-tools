@@ -1,14 +1,11 @@
-import base64
-import json
 import re
 from typing import Tuple, List
 
-from ruamel.yaml import CommentedMap
-
-from app.conf import SystemConfig
 from app.helper import DbHelper
 from app.media.tmdbv3api.tmdb import logger
-from app.utils import StringUtils, RequestUtils
+from app.sites import Sites
+from app.sites.mt import MtFunc
+from app.utils import RequestUtils
 from app.utils.types import MediaType
 from config import Config
 
@@ -66,8 +63,8 @@ class MTorrentSpider:
         搜索
         """
         # 查询ApiKey
-        site_info = self.dbhelper.get_site_by_id(self._siteid)
-        self._apikey = site_info[0].APIKEY
+        site_info = Sites().get_sites(self._siteid)
+        self._apikey = site_info.get('apikey')
         if not self._apikey:
             return True, []
 
@@ -104,11 +101,11 @@ class MTorrentSpider:
                 else:
                     category = MediaType.UNKNOWN.value
                 labels = self._labels.get(result.get('labels') or "0") or ""
-
+                mt = MtFunc(site_info)
                 torrent = {
                     'title': result.get('name'),
                     'description': result.get('smallDescr'),
-                    'enclosure': self.__get_download_url(result.get('id')),
+                    'enclosure': mt.get_download_url(result.get('id')),
                     'pubdate': result.get('createdDate'),
                     'size': int(result.get('size') or '0'),
                     'seeders': int(result.get('status', {}).get("seeders") or '0'),
@@ -171,25 +168,3 @@ class MTorrentSpider:
             return uploadvolumefactor_dict.get(discount, 1)
         return 1
 
-    def __get_download_url(self, torrent_id: str) -> str:
-        """
-        获取下载链接，返回base64编码的json字符串及URL
-        """
-        url = self._downloadurl % self._domain
-        params = {
-            'method': 'post',
-            'cookie': False,
-            'params': {
-                'id': torrent_id
-            },
-            'header': {
-                'Content-Type': 'application/json',
-                'User-Agent': f'{self._ua}',
-                'Accept': 'application/json, text/plain, */*',
-                'x-api-key': self._apikey
-            },
-            'result': 'data'
-        }
-        # base64编码
-        base64_str = base64.b64encode(json.dumps(params).encode('utf-8')).decode('utf-8')
-        return f"[{base64_str}]{url}"

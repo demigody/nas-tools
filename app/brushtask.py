@@ -11,9 +11,12 @@ import log
 from app.downloader import Downloader
 from app.filter import Filter
 from app.helper import DbHelper, RssHelper
+from app.indexer import Indexer
+from app.indexer.client._mt_spider import MTorrentSpider
 from app.media.meta import MetaInfo
 from app.message import Message
 from app.sites import Sites, SiteConf
+from app.sites.mt import MtFunc
 from app.utils import StringUtils, ExceptionUtils
 from app.utils.commons import singleton
 from app.utils.types import BrushDeleteType
@@ -29,6 +32,7 @@ class BrushTask(object):
     dbhelper = None
     rsshelper = None
     downloader = None
+    torrent_id = None
     _scheduler = None
     _brush_tasks = {}
     _torrents_cache = []
@@ -129,6 +133,7 @@ class BrushTask(object):
                 "rss_url": task.RSSURL if task.RSSURL else site_info.get("rssurl"),
                 "rss_url_show": task.RSSURL,
                 "cookie": site_info.get("cookie"),
+                "apikey": site_info.get("apikey"),
                 "ua": site_info.get("ua"),
                 "download_count": task.DOWNLOAD_COUNT,
                 "remove_count": task.REMOVE_COUNT,
@@ -165,6 +170,7 @@ class BrushTask(object):
         rss_url = taskinfo.get("rss_url")
         rss_rule = taskinfo.get("rss_rule")
         cookie = taskinfo.get("cookie")
+        apikey = taskinfo.get("apikey")
         rss_free = taskinfo.get("free")
         downloader_id = taskinfo.get("downloader")
         ua = taskinfo.get("ua")
@@ -188,8 +194,8 @@ class BrushTask(object):
         if not rss_url:
             log.error("【Brush】站点 %s 未配置RSS订阅地址，无法刷流！" % site_name)
             return
-        if rss_free and not cookie:
-            log.warn("【Brush】站点 %s 未配置Cookie，无法开启促销刷流" % site_name)
+        if rss_free and not (cookie or apikey):
+            log.warn("【Brush】站点 %s 未配置Cookie或Apikey，无法开启促销刷流" % site_name)
             return
         # 下载器参数
         downloader_cfg = self.downloader.get_downloader_conf(downloader_id)
@@ -237,7 +243,10 @@ class BrushTask(object):
                 # 种子链接
                 enclosure = res.get('enclosure')
                 # 种子页面
-                page_url = res.get('link')
+                if 'm-team' in enclosure:
+                    page_url = enclosure
+                else:
+                    page_url = res.get('link')
                 # 种子大小
                 size = res.get('size')
                 # 发布时间
@@ -255,6 +264,7 @@ class BrushTask(object):
                                              pubdate=pubdate,
                                              siteid=site_id,
                                              cookie=cookie,
+                                             apikey=apikey,
                                              ua=ua,
                                              proxy=site_proxy):
                     continue
@@ -272,6 +282,11 @@ class BrushTask(object):
                     continue
                 # 开始下载
                 log.debug("【Brush】%s 符合条件，开始下载..." % torrent_name)
+
+                # 处理mt_enclosure
+                if 'm-team' in enclosure:
+                    enclosure = MtFunc(site_info).get_download_url(self.torrent_id)
+
                 if self.__download_torrent(taskinfo=taskinfo,
                                            rss_rule=rss_rule,
                                            site_info=site_info,
@@ -543,7 +558,8 @@ class BrushTask(object):
             except Exception as e:
                 ExceptionUtils.exception_traceback(e)
 
-    def __is_allow_new_torrent(self, taskinfo, dlcount, current_site_dlcount, current_site_count, site_info, torrent_size=None):
+    def __is_allow_new_torrent(self, taskinfo, dlcount, current_site_dlcount, current_site_count, site_info,
+                               torrent_size=None):
         """
         检查是否还能添加新的下载
         """
@@ -595,7 +611,7 @@ class BrushTask(object):
 
         # 检查是否添加标签
         label = list(set((taskinfo.get("label").split(',') if taskinfo.get("label") else []) +
-                 (site_info.get("tags").split(',') if site_info.get("tags") else [])))
+                         (site_info.get("tags").split(',') if site_info.get("tags") else [])))
         if label is None or len(label) <= 0:
             return True
 
@@ -733,6 +749,7 @@ class BrushTask(object):
                          pubdate,
                          siteid,
                          cookie,
+                         apikey,
                          ua,
                          proxy):
         """
@@ -783,10 +800,12 @@ class BrushTask(object):
             if self.sites.check_ratelimit(siteid):
                 return False
 
-            torrent_attr = self.siteconf.check_torrent_attr(torrent_url=torrent_url,
-                                                            cookie=cookie,
-                                                            ua=ua,
-                                                            proxy=proxy)
+            torrent_attr, torrent_id = self.siteconf.check_torrent_attr(torrent_url=torrent_url,
+                                                                        cookie=cookie,
+                                                                        apikey=apikey,
+                                                                        ua=ua,
+                                                                        proxy=proxy)
+            self.torrent_id = torrent_id
             torrent_peer_count = torrent_attr.get("peer_count")
             log.debug("【Brush】%s 解析详情, %s" % (title, torrent_attr))
 

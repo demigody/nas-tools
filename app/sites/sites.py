@@ -320,7 +320,7 @@ class Sites:
                 if mt.signin():
                     return True, "连接成功", seconds
                 else:
-                    return False, "连接失败,请检查APIKEY", seconds
+                    return False, "连接失败,请检查Cookie", seconds
             else:
                 res = RequestUtils(headers=ua, cookies=site_cookie, proxies=Config().get_proxies() if site_info.get(
                     "proxy") else None).get_res(url=site_url)

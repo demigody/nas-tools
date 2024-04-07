@@ -18,6 +18,7 @@ from app.helper.cloudflare_helper import under_challenge
 from app.message import Message
 from app.plugins import EventHandler, EventManager
 from app.plugins.modules._base import _IPluginModule
+from app.sites.mt import MtFunc
 from app.sites.siteconf import SiteConf
 from app.sites.sites import Sites
 from app.utils import RequestUtils, ExceptionUtils, StringUtils, SchedulerUtils
@@ -644,7 +645,7 @@ class AutoSignIn(_IPluginModule):
             except Exception as e:
                 return f"【{site_info.get('name')}】签到失败：{str(e)}", signinTime, home_url
         else:
-            return self.__signin_base(site_info), signinTime, home_url
+            return self.signin_base(site_info), signinTime, home_url
 
     def signin_base(self, site_info):
         """
@@ -733,10 +734,8 @@ class AutoSignIn(_IPluginModule):
                 # 访问链接
                 home_url = StringUtils.get_base_url(site_url)
                 if "m-team" in home_url:
-                    home_url = f"{home_url}/api/member/updateLastBrowse"
-                    res = RequestUtils(headers=ua, apikey=site_apikey, proxies=Config().get_proxies() if site_info.get(
-                        "proxy") else None).post_res(url=home_url)
-                    if res.json()["code"] == "0":
+                    mt = MtFunc(site_info)
+                    if mt.signin():
                         return f"【{site}】签到成功"
                     else:
                         return f"【{site}】签到失败"

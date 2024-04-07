@@ -65,7 +65,7 @@ class Torrent:
         # base64编码处理
         if url.startswith("["):
             # 需要解码获取下载地址
-            url = self.get_redict_url(url=url)
+            url = self.get_download_url(url=url)
         req = RequestUtils(headers=ua, cookies=cookie, proxies=Config().get_proxies() if proxy else None,
                            referer=referer).get_res(url=url, allow_redirects=False)
         while req and req.status_code in [301, 302]:
@@ -143,7 +143,7 @@ class Torrent:
         return file_path, file_content, ""
 
     @staticmethod
-    def get_redict_url(url: str) -> Optional[str]:
+    def get_download_url(url: str) -> Optional[str]:
         """
         获取下载链接， url格式：[base64]url
         """

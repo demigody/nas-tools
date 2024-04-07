@@ -1,13 +1,15 @@
-from typing import Tuple, Any
+import base64
+import json
 
 from app.media.tmdbv3api.tmdb import logger
-from app.utils import RequestUtils, StringUtils
+from app.utils import RequestUtils
 from config import Config
 
 
 class MtFunc(object):
     signin_url = "%s/api/member/updateLastBrowse"
     api_key_url = "%s/api/apikey/getKeyList"
+    download_url = "%s/api/torrent/genDlToken"
     _site_name = None
     _site_api_key = None
     _site_cookie = None
@@ -19,7 +21,7 @@ class MtFunc(object):
         self._site_ua = site_info.get("ua") or Config().get_ua()
         self._site_api_key = site_info.get("apikey")
         self._site_cookie = site_info.get("cookie")
-        self._site_proxy = Config().get_proxies() if site_info.get("proxy") else None
+        self._site_proxy = site_info.get("proxy") or Config().get_proxies()
         self._site_url = site_info.get('strict_url')
 
     def signin(self):
@@ -58,3 +60,27 @@ class MtFunc(object):
             logger.error(f"{self._site_name} 获取ApiKey出错：{e}")
             return False, "获取ApiKey出错"
         return True, self._site_api_key
+
+    def get_download_url(self, torrent_id: str) -> str:
+        """
+        获取下载链接，返回base64编码的json字符串及URL
+        """
+        url = self.download_url % self._site_url
+        params = {
+            'method': 'post',
+            'cookie': False,
+            'params': {
+                'id': torrent_id
+            },
+            'header': {
+                'Content-Type': 'application/json',
+                'User-Agent': f'{self._site_ua}',
+                'Accept': 'application/json, text/plain, */*',
+                'x-api-key': self._site_api_key
+            },
+            'result': 'data'
+        }
+        # base64编码
+        base64_str = base64.b64encode(json.dumps(params).encode('utf-8')).decode('utf-8')
+        return f"[{base64_str}]{url}"
+

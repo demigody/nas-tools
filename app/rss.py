@@ -153,7 +153,10 @@ class Rss:
                         # 种子链接
                         enclosure = article.get('enclosure')
                         # 种子页面
-                        page_url = article.get('link')
+                        if 'm-team' in enclosure:
+                            page_url = enclosure
+                        else:
+                            page_url = article.get('link')
                         # 种子大小
                         size = article.get('size')
                         # 开始处理
