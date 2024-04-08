@@ -35,15 +35,16 @@ class RequestUtils:
             }
         if apikey:
             self._headers.update({"X-Api-Key": apikey})
+        else:
+            if cookies:
+                if isinstance(cookies, str):
+                    self._cookies = self.cookie_parse(cookies)
+                else:
+                    self._cookies = cookies
         if referer:
             self._headers.update({
                 "referer": referer
             })
-        if cookies:
-            if isinstance(cookies, str):
-                self._cookies = self.cookie_parse(cookies)
-            else:
-                self._cookies = cookies
         if proxies:
             self._proxies = proxies
         if session:

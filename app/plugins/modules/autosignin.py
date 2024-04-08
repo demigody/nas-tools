@@ -659,7 +659,6 @@ class AutoSignIn(_IPluginModule):
         try:
             site_url = site_info.get("signurl")
             site_cookie = site_info.get("cookie")
-            site_apikey = site_info.get("apikey")
             ua = site_info.get("ua") or Config().get_ua()
             if not site_url or not site_cookie:
                 self.warn("未配置 %s 的站点地址或Cookie，无法签到" % str(site))

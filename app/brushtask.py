@@ -790,10 +790,10 @@ class BrushTask(object):
                 return False
 
             torrent_attr = self.siteconf.check_torrent_attr(torrent_url=torrent_url,
-                                                                        cookie=cookie,
-                                                                        apikey=apikey,
-                                                                        ua=ua,
-                                                                        proxy=proxy)
+                                                            cookie=cookie,
+                                                            apikey=apikey,
+                                                            ua=ua,
+                                                            proxy=proxy)
             torrent_peer_count = torrent_attr.get("peer_count")
             log.debug("【Brush】%s 解析详情, %s" % (title, torrent_attr))
 

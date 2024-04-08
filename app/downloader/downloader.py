@@ -338,6 +338,7 @@ class Downloader:
                 _, content, dl_files_folder, dl_files, retmsg = Torrent().get_torrent_info(
                     url=url,
                     cookie=site_info.get("cookie"),
+                    apikey=site_info.get("apikey"),
                     ua=site_info.get("ua"),
                     referer=page_url if site_info.get("referer") else None,
                     proxy=proxy if proxy is not None else site_info.get("proxy")

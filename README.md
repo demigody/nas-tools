@@ -2,178 +2,73 @@
 
 ## 版本声明
 
-1）本项目基于开源维护项目[nas-tools](https://github.com/hsuyelin/nas-tools)开发，非官方项目；  
-2）本项目旨在适配mt新架构，后续可能不会继续维护。  
-3）相关声明和说明同原项目。  
+1）本项目基于开源维护项目[nas-tools](https://github.com/hsuyelin/nas-tools)开发，非官方项目；
+2）相关声明和说明参考原项目[nas-tools](https://github.com/hsuyelin/nas-tools)。   
+
+---
 
 ## 注意事项
 
-1）确认站点维护中的mt站相关设置，浏览器仿真设置为否，站点地址设置到mt主域名(https://xx.x-xxxx.xx/)。  
-2）mt站现在的登录控制比较严格，推荐设置UA为常用浏览器UA,否则cookie会频繁失效。  
-3）使用前需手动在mt站创建ApiKey。  
-4）更换ApiKey后，需在站点测试中重新选中mt测试通过一次，否则搜索和下载都会失败。  
-5）mt站现有适配的功能：站点测试、资源搜索、下载、数据统计、订阅搜索、签到（未验证是否可避免mt的不活跃账号检测）。  
-6）mt站的RSS订阅、刷流无效。  
-7）去除更新提示以及更新系统的指令。  
-8）常用功能已测试无异常，但不保证其他人的使用效果。  
-9）需要用cookie的地方：签到、数据统计中的未读消息
+1）mt站适配情况：  
 
----
-# 以下为原项目README
+- [x] 连通性测试
 
-[![GitHub stars](https://img.shields.io/github/stars/hsuyelin/nas-tools?style=plastic)](https://github.com/hsuyelin/nas-tools/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/hsuyelin/nas-tools?style=plastic)](https://github.com/hsuyelin/nas-tools/network/members)
-[![GitHub issues](https://img.shields.io/github/issues/hsuyelin/nas-tools?style=plastic)](https://github.com/hsuyelin/nas-tools/issues)
-[![GitHub license](https://img.shields.io/github/license/hsuyelin/nas-tools?style=plastic)](https://github.com/hsuyelin/nas-tools/blob/master/LICENSE.md)
-[![Docker pulls](https://img.shields.io/docker/pulls/hsuyelin/nas-tools?style=plastic)](https://hub.docker.com/r/hsuyelin/nas-tools)
-[![Platform](https://img.shields.io/badge/platform-amd64/arm64-pink?style=plastic)](https://hub.docker.com/r/hsuyelin/nas-tools)
+- [x] 获取令牌
 
-## 维护声明
+- [x] 自动签到
 
-1）本维护项目为[nas-tools](https://github.com/NAStool/nas-tools)维护项目非官方项目；  
-2）本维护项目旨在帮助喜欢PT的小伙伴更加易用，本人未创建任何交流群或频道；  
-3）本维护项目提交的修复和需求皆为开源，任何维护该项目的小伙伴皆可参考，但尽量注明出处；  
-4）使用本维护项目请尽量保持低调，尽可能不在交流群或者频道传播，自己使用即可；  
-5）欢迎任何形式的pr，请尽量将pr内容描述清楚；  
+- [x] 站点数据统计
 
-## 开发路线及官方原版新增内容
+- [x] 刷流
 
-基于官方 3.2.3 版本
+- [x] RSS订阅、下载
 
-[开发路线](https://github.com/hsuyelin/nas-tools/discussions/91)
+- [x] 订阅搜索、下载
 
-- [x] 支持Aria2/115/PikPak下载器
-- [x] 支持chromedriver114版本以上的谷歌浏览器
-- [x] 支持识别历史记录一键清理
-- [x] 支持通过插件安装Jackett和Prowlarr扩展内置索引
-- [x] 支持TMDB搜索18+内容
-- [x] 支持通过开关控制刮削时是否刮削视频实际媒体信息
-- [x] 支持管理我的媒体库显示模块
-- [x] 修复官方版豆瓣图片无法显示
-- [x] 修复官方原版豆瓣同步方式近期动态与全量同步失效
-- [x] 修复官方原版高清空间签到cookies错误
-- [x] 持续更新索引站点
-- [x] 更多功能请查阅 [版本发布](https://github.com/hsuyelin/nas-tools/releases)  更新日志 
+- [x] 站点资源列表、下载
 
-## 安装
-### 1、Docker
-```
-docker pull hsuyelin/nas-tools:latest
-```
-教程见 [这里](https://raw.githubusercontent.com/hsuyelin/nas-tools/master/docker/readme.md) 。
+- [x] 资源搜索、下载
 
-如无法连接Github，注意不要开启自动更新开关(NASTOOL_AUTO_UPDATE=false)，将NASTOOL_CN_UPDATE设置为true可使用国内源加速安装依赖。
+- [x] 自动删种
 
-### 2、本地运行
-仅支持python3.10版本，需要预安装cython（python3 -m pip install Cython），如发现缺少依赖包需额外安装：
-```
-git clone -b master https://github.com/hsuyelin/nas-tools --recurse-submodule 
-python3 -m pip install --force-reinstall -r requirements.txt
-export NASTOOL_CONFIG="/xxx/config/config.yaml"
-nohup python3 run.py & 
-```
+- [x] 未读消息提醒
 
-### 3、可执行文件运行
-仅支持python3.10版本，先从tag下载对应的可执行文件，打开终端，例如下载的是macos版本，文件名为：nastool_macos_v3.2.2：
-```bash
-mv nastool_macos_v3.2.2 nastools
-chmod +x nastools
-// macos 12以上需要去隐私-安全性，允许任意开发者
-./nastools（如果需要不在终端输出执行：./nastool &> /dev/null）
-```
-
-## 官方免责
-
-1）本软件仅供学习交流使用，对用户的行为及内容毫不知情，使用本软件产生的任何责任需由使用者本人承担。  
-2）本软件代码开源，基于开源代码进行修改，人为去除相关限制导致软件被分发、传播并造成责任事件的，需由代码修改发布者承担全部责任，不建议对用户认证机制进行规避或修改并公开发布。  
-3）本项目没有在任何地方发布捐赠信息页面，也不会接受捐赠或收费，请仔细辨别避免误导。
+- [ ] 从详情页下载字幕（基本没有，所以没做）
 
 
-## 常见问题
 
-### 1. 启动inotify报错/无法自动目录同步
+2）使用前需手动在mt站创建ApiKey(控制台-实验室-创建令牌)。
 
-> 问题描述
-> 无法启动，日志报inotify instance limit reached、inotify watch limit reached等与inotify相关错误
-> 目录同步无法自动同步或只有部份目录正常，但在服务中手动启动可以正常同步
 
-解决办法：
-* 宿主机上（不是docker容器里），执行以下命令：
- ```bash
-echo fs.inotify.max_user_watches=524288 | sudo tee -a /etc/sysctl.conf
-echo fs.inotify.max_user_instances=524288 | sudo tee -a /etc/sysctl.conf
-sudo sysctl -p
-```
-* 插件-定时目录同步
+3）由于mt的限制，如果需要全部功能则cookie和apikey都需要。如果只需要部分功能可以参考下面：  
 
-### 2. 启动报错数据库no such column
-> 问题描述
-> 启动报错数据库no such column
+| cookie | apikey |
+| ------ | ------ |
+| 站点自动签到 | 资源查询相关 |
+| 未读消息提醒 | 资源下载相关 |
+| 站点数据统计 | 订阅刷流相关 |
 
-解决办法：
-* [Sqlite浏览器](https://github.com/sqlitebrowser/sqlitebrowser)打开config文件夹下user.db
-* 删除alembic_version表后重启
+例如：
 
-### 3. Nginx-Proxy-Manager无法申请/更新Let's Encrypt证书
-> 问题描述
-> Nginx-Proxy-Manager无法申请/更新Let's Encrypt证书
+A只想使用刷流功能，就不必关心cookie是否过期，只需要保证apikey没有删除就可以。  
 
-解决办法：
-* 无法通过DNSpod申请, 进入容器，执行命令
-```bash
-pip install certbot-dns-dnspod
-```
+B只使用自动签到，就不必建立令牌，只要保证cookie没有过期就可以。
 
-* 无法更新/自动更新
-```bash
-进入容器，执行命令 pip install zope
-```
 
-* pip使用代理
-```
-pip install xxx --proxy=http://ip:port
-```
+4）站点维护中的设置（重点）：
 
-### 4. 消息通知内容无法跳转
-> 问题描述
-> 消息通知内容无法跳转
+- 浏览器仿真设置为否。
 
-解决办法：
-* 设置-基础设置-系统-外网访问地址
+- 站点地址设置到mt主域名(https://xx.x-xxxx.xx/) 。
 
-### 5. 电影/电视剧订阅一直队列中
-> 问题描述
-> 电影/电视剧订阅添加后，一直在队列中
-> 需手动刷新订阅开始搜索或订阅
+- UA设置为常用浏览器UA，或在设置-基础设置里设置为常用浏览器UA。
 
-解决办法：
-* 订阅如启用有订阅站点, 请在设置-基础设置-服务-订阅RSS周期设置启用
-* 订阅如启用有搜索站点, 请在设置-基础设置-服务-订阅搜索周期设置启用
-* 添加后点击订阅，选择刷新
+- 填入全部内容后，点击更新apikey会自动获取最新的令牌，也可以自己填入，在mt更换令牌后需重新再获取一次。
 
-### 6. 目录同步文件重复转移
-> 问题描述
-> 设置-基础设置-媒体-重命名格式中包含{releaseGroup}
-> 文件转移方式为目录同步
-> 转移后，出现重复的转移文件（制作组等后缀不同）
+- RSS订阅生成链接时，項目標題格式选项需勾选[大小]，否则无法使用按种子大小过滤（自动获取大小会对站点造成很多无意义访问，加重mt站点压力，自己改一下叭。）。
+  
+  
 
-解决办法：
-* 目录同步设置时，目的目录不要在源目录下
+5）已去除更新提示和更新系统的指令。
 
-### 7. 识别转移错误码-1
-> 问题描述
-> 识别转移错误码-1
-
-解决办法：
-* 硬链接跨盘，转移前后目录根目录需相同
-* 群晖中，不同的共享文件夹会被系统认为是跨盘
-
-### 8. 电视剧订阅在完结前自动删除
-> 问题描述
-> 电视剧订阅在完结前自动删除
-
-解决办法：
-*  TMDB词条未更新集数/下载资源无法识别集数
-*  订阅中设置总集数
-
-更多功能使用请查看 [nas-tools wiki](https://t.me/NAStool_wiki)
+6）常用功能已本机测试，有bug欢迎反馈。

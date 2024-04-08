@@ -26,11 +26,12 @@ class Torrent:
         if not os.path.exists(self._torrent_temp_path):
             os.makedirs(self._torrent_temp_path, exist_ok=True)
 
-    def get_torrent_info(self, url, cookie=None, ua=None, referer=None, proxy=False):
+    def get_torrent_info(self, url, cookie=None, apikey=None, ua=None, referer=None, proxy=False):
         """
         把种子下载到本地，返回种子内容
         :param url: 种子链接
         :param cookie: 站点Cookie
+        :param apikey: 站点apikey
         :param ua: 站点UserAgent
         :param referer: 关联地址，有的网站需要这个否则无法下载
         :param proxy: 是否使用内置代理
@@ -44,6 +45,7 @@ class Torrent:
             # 下载保存种子文件
             file_path, content, errmsg = self.save_torrent_file(url=url,
                                                                 cookie=cookie,
+                                                                apikey=apikey,
                                                                 ua=ua,
                                                                 referer=referer,
                                                                 proxy=proxy)
@@ -57,7 +59,7 @@ class Torrent:
         except Exception as err:
             return None, None, "", [], "下载种子文件出现异常：%s" % str(err)
 
-    def save_torrent_file(self, url, cookie=None, ua=None, referer=None, proxy=False):
+    def save_torrent_file(self, url, cookie=None, apikey=None, ua=None, referer=None, proxy=False):
         """
         把种子下载到本地
         :return: 种子保存路径，错误信息
@@ -66,7 +68,7 @@ class Torrent:
         if url.startswith("["):
             # 需要解码获取下载地址
             url = self.get_download_url(url=url)
-        req = RequestUtils(headers=ua, cookies=cookie, proxies=Config().get_proxies() if proxy else None,
+        req = RequestUtils(headers=ua, cookies=cookie, apikey=apikey, proxies=Config().get_proxies() if proxy else None,
                            referer=referer).get_res(url=url, allow_redirects=False)
         while req and req.status_code in [301, 302]:
             url = req.headers['Location']
@@ -160,8 +162,8 @@ class Torrent:
             req_str = base64.b64decode(base64_str.encode('utf-8')).decode('utf-8')
             req_params: Dict[str, dict] = json.loads(req_str)
             # 是否使用cookie
-            if not req_params.get('cookie'):
-                cookie = None
+            #if not req_params.get('cookie'):
+            #    cookie = None
             # 请求头
             if req_params.get('header'):
                 headers = req_params.get('header')
