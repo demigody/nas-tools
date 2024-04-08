@@ -268,11 +268,12 @@
     total_downloads = [];
     let download_items_id = select_GetSelectedVAL("resources_item");
     for (let id in download_items_id) {
-      if ($(`#title_${id}`).val()) {
-        total_downloads.push(id);
+      if ($(`#title_${download_items_id[id]}`).val()) {
+        total_downloads.push(download_items_id[id]);
       }
     }
     if (total_downloads.length === 0) {
+      show_fail_modal("未选择资源！");
       return;
     }
     current_download = 0;
