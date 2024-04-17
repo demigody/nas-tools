@@ -731,8 +731,7 @@ class AutoSignIn(_IPluginModule):
                     checkin_text = "模拟登录"
                 self.info(f"开始站点{checkin_text}：{site}")
                 # 访问链接
-                home_url = StringUtils.get_base_url(site_url)
-                if "m-team" in home_url:
+                if "m-team" in site_url:
                     mt = MtFunc(site_info)
                     if mt.signin():
                         return f"【{site}】签到成功"
@@ -740,7 +739,7 @@ class AutoSignIn(_IPluginModule):
                         return f"【{site}】签到失败"
                 else:
                     res = RequestUtils(headers=ua, cookies=site_cookie, proxies=Config().get_proxies() if site_info.get(
-                        "proxy") else None).get_res(url=home_url)
+                        "proxy") else None).get_res(url=site_url)
                     if res and res.status_code in [200, 500, 403]:
                         if not SiteHelper.is_logged_in(res.text):
                             if under_challenge(res.text):
