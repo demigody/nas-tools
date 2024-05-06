@@ -62,7 +62,7 @@ class MtUserInfo:
 
     def _get_data(self, url, json=None, data=None):
         res = RequestUtils(content_type="application/json", ua=self.site_info.get("ua") or Config().get_ua(),
-                           cookies=self.site_info.get('cookie'),
+                           authorization=self.site_info.get('cookie'),
                            proxies=self.site_info.get("proxy")
                            ).post_res(
             url=url % self.site_info.get("strict_url"), params=data, json=json)

@@ -10,12 +10,13 @@ class RequestUtils:
     _headers = None
     _cookies = None
     _apikey = None
+    _authorization = None
     _proxies = None
     _timeout = 20
     _session = None
 
     def __init__(self, headers=None, cookies=None, ua=None, proxies=False, session=None, timeout=None, referer=None,
-                 content_type=None, accept_type=None, apikey=None):
+                 content_type=None, accept_type=None, apikey=None, authorization=None):
         if not content_type:
             content_type = "application/x-www-form-urlencoded; charset=UTF-8"
         if headers:
@@ -36,11 +37,16 @@ class RequestUtils:
         if apikey:
             self._headers.update({"X-Api-Key": apikey})
         else:
-            if cookies:
-                if isinstance(cookies, str):
-                    self._cookies = self.cookie_parse(cookies)
-                else:
-                    self._cookies = cookies
+            if authorization:
+                self._headers.update({
+                    "Authorization": authorization
+                })
+            else:
+                if cookies:
+                    if isinstance(cookies, str):
+                        self._cookies = self.cookie_parse(cookies)
+                    else:
+                        self._cookies = cookies
         if referer:
             self._headers.update({
                 "referer": referer

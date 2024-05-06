@@ -25,7 +25,7 @@ class MtFunc(object):
         self._site_url = site_info.get('strict_url')
 
     def signin(self):
-        res = (RequestUtils(headers=self._site_ua, cookies=self._site_cookie
+        res = (RequestUtils(headers=self._site_ua, authorization=self._site_cookie
                             , proxies=self._site_proxy)
                .post_res(url=self.signin_url % self._site_url))
         if res.json()["code"] == "0":
