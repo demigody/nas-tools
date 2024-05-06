@@ -96,6 +96,7 @@ nohup python3 run.py &
 ```
 
 ### 3、可执行文件运行
+下载地址：https://github.com/demigody/nas-tools/releases
 仅支持python3.10版本，先从tag下载对应的可执行文件，打开终端，例如下载的是macos版本，文件名为：nastool_macos_v3.2.2：
 ```bash
 mv nastool_macos_v3.2.2 nastools
