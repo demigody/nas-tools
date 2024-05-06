@@ -175,56 +175,10 @@ jobs:
           name: linux-musl-arm64
           path: /home/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.linux.musl.arm64
 
-  Mac-build:
-    runs-on: macos-latest
-    steps:
-      - name: Init Python 3.10.11
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10.11'
-
-      - name: Install dependent packages
-        run: |
-          python -m pip install --upgrade pip
-          pip install wheel numpy==1.23.5 pyparsing==3.0.9 pyinstaller==5.7.0
-          git clone --depth=1 -b master https://github.com/demigody/nas-tools --recurse-submodule
-          cd nas-tools
-          pip install -r package/requirements.txt
-          CURRENT_DIR=$(pwd)
-          echo "NASTOOL_CONFIG=$CURRENT_DIR/config/config.yaml" >> $GITHUB_ENV
-          echo $env:NASTOOL_CONFIG
-        shell: bash
-
-      - name: Package through pyinstaller
-        run: |
-          cd nas-tools
-          pwd
-          ls -all
-          cp ./package/rely/hook-cn2an.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
-          cp ./package/rely/hook-zhconv.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
-          cp ./package/rely/hook-iso639.py $Python_ROOT_DIR/lib/python3.10/site-packages/PyInstaller/hooks/
-          cp ./third_party.txt ./package/
-          cp ./package/rely/template.jinja2 $Python_ROOT_DIR/lib/python3.10/site-packages/setuptools/_vendor/pyparsing/diagram/
-          cp -r ./web/. $Python_ROOT_DIR/lib/python3.10/site-packages/web/
-          cp -r ./config/. $Python_ROOT_DIR/lib/python3.10/site-packages/config/
-          cp -r ./scripts/. $Python_ROOT_DIR/lib/python3.10/site-packages/scripts/
-          cd package
-          pyinstaller nas-tools.spec
-          mv ./dist/nas-tools ./dist/nas-tools.macos
-          pwd
-          ls -all ./dist/
-        shell: bash
-
-      - name: Upload mac file
-        uses: actions/upload-artifact@v3
-        with:
-          name: macos
-          path: /Users/runner/work/nas-tools/nas-tools/nas-tools/package/dist/nas-tools.macos
-
   Create-release_Send-message:
     permissions: write-all
     runs-on: ubuntu-latest
-    needs: [Windows-build, Linux-build-amd64, Linux-build-arm64, Linux-build-amd64-musl, Linux-build-arm64-musl, Mac-build]
+    needs: [Windows-build, Linux-build-amd64, Linux-build-arm64, Linux-build-amd64-musl, Linux-build-arm64-musl]
     steps:
     - uses: actions/checkout@v3
 
@@ -246,7 +200,6 @@ jobs:
         mv ./linux-arm64/nas-tools.linux.arm64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_arm64_v${{ env.app_version }}
         mv ./linux-musl-amd64/nas-tools.linux.musl.amd64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_amd64_v${{ env.app_version }}
         mv ./linux-musl-arm64/nas-tools.linux.musl.arm64 /home/runner/work/nas-tools/nas-tools/releases/nastool_linux_musl_arm64_v${{ env.app_version }}
-        mv ./macos/nas-tools.macos /home/runner/work/nas-tools/nas-tools/releases/nastool_macos_v${{ env.app_version }}
         pwd
         ls -all
     - name: Create release
