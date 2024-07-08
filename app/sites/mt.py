@@ -51,8 +51,13 @@ class MtFunc(object):
                     api_keys.sort(key=lambda x: x.get('lastModifiedDate'), reverse=True)
                     self._site_api_key = api_keys[0].get('apiKey')
                 else:
-                    logger.warn(f"{self._site_name} 获取ApiKey失败，请先在`控制台`->`实验室`建立存取令牌")
-                    return False, "获取ApiKey失败，请先在`控制台`->`实验室`建立存取令牌"
+                    __err_msg=res.json().get('message')
+                    if __err_msg:
+                        logger.warn(f"{self._site_name} {__err_msg}")
+                        return False, "{__err_msg}"
+                    else:
+                        logger.warn(f"{self._site_name} 获取ApiKey失败，请先在`控制台`->`实验室`建立存取令牌")
+                        return False, "获取ApiKey失败，请先在`控制台`->`实验室`建立存取令牌"
             else:
                 logger.warn(f"{self._site_name} 获取ApiKey失败，请检查Cookie是否有效")
                 return False, "获取ApiKey失败，请检查Cookie是否有效"
