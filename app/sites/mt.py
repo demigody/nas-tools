@@ -41,7 +41,7 @@ class MtFunc(object):
             res = RequestUtils(headers={
                 "Content-Type": "application/json",
                 "User-Agent": f"{self._site_ua}"
-            }, cookies=self._site_cookie, proxies=self._site_proxy, timeout=15,
+            }, cookies=self._site_cookie, proxies=self._site_proxy, timeout=15, authorization=self._site_cookie,
                 referer=f"{self._site_url}/usercp?tab=laboratory").post_res(url=self.api_key_url % self._site_url)
             if res and res.status_code == 200:
                 api_keys = res.json().get('data')
