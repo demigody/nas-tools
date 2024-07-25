@@ -10,6 +10,7 @@ class MtFunc(object):
     signin_url = "%s/api/member/updateLastBrowse"
     api_key_url = "%s/api/apikey/getKeyList"
     download_url = "%s/api/torrent/genDlToken"
+    torrent_detail_url = "%s/api/torrent/detail"
     _site_name = None
     _site_api_key = None
     _site_cookie = None
@@ -89,3 +90,18 @@ class MtFunc(object):
         base64_str = base64.b64encode(json.dumps(params).encode('utf-8')).decode('utf-8')
         return f"[{base64_str}]{url}"
 
+    def get_torrent_detail(self, torrent_id: str) -> str:
+        """
+        获取下载链接，返回base64编码的json字符串及URL
+        """
+        url = self.torrent_detail_url % self._site_url
+        param = {'id': torrent_id}
+        res = RequestUtils(
+            authorization=self._site_cookie,
+            apikey=self._site_api_key,
+            ua=self._site_ua,
+            proxies=self._site_proxy
+        ).post_res(url=url, data=param)
+        if res and res.status_code == 200:
+            res.encoding = res.apparent_encoding
+            return res.text

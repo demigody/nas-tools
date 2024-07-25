@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 from lxml import etree
 
 from app.helper import ChromeHelper
+from app.sites.mt import MtFunc
 from app.utils import ExceptionUtils, StringUtils, RequestUtils
 from app.utils.commons import singleton
 from config import Config
@@ -99,10 +100,11 @@ class SiteConf:
                 return v
         return {}
 
-    def check_torrent_attr(self, torrent_url, cookie, apikey, ua=None, proxy=False):
+    def check_torrent_attr(self, torrent_url, cookie, apikey, site_url, ua=None, proxy=False):
         """
         检验种子是否免费，当前做种人数
         :param torrent_url: 种子的详情页面
+        :param site_url: 站点地址
         :param cookie: 站点的Cookie
         :param apikey: 站点的Apikey
         :param ua: 站点的ua
@@ -123,6 +125,7 @@ class SiteConf:
             res = re.findall(r'\d+', torrent_url)
             torrent_id = res[0]
             json_text = self.__get_site_page_html(url=detail_url,
+                                                  site_url=site_url,
                                                   cookie=cookie,
                                                   apikey=apikey,
                                                   ua=ua,
@@ -186,7 +189,7 @@ class SiteConf:
 
     @staticmethod
     @lru_cache(maxsize=128)
-    def __get_site_page_html(url, cookie, apikey, ua, render=False, proxy=False, param=None):
+    def __get_site_page_html(url, cookie, ua, apikey=None, site_url=None, render=False, proxy=False, param=None):
         chrome = ChromeHelper(headless=True)
         if render and chrome.get_status():
             # 开渲染
@@ -194,17 +197,15 @@ class SiteConf:
                 # 等待页面加载完成
                 time.sleep(10)
                 return chrome.get_html()
-        elif 'm-team' in url:
-            param = {'id': param}
-            res = RequestUtils(
-                cookies=cookie,
-                apikey=apikey,
-                ua=ua,
-                proxies=Config().get_proxies() if proxy else None
-            ).post_res(url=url, data=param)
-            if res and res.status_code == 200:
-                res.encoding = res.apparent_encoding
-                return res.text
+        elif 'm-team' in site_url:
+            _site_info = {
+                "cookie": cookie,
+                "ua": ua,
+                "proxy": proxy,
+                "strict_url": site_url
+            }
+            _mt = MtFunc(_site_info)
+            return _mt.get_torrent_detail(param)
         else:
             res = RequestUtils(headers=ua, cookies=cookie, apikey=apikey,
                                proxies=Config().get_proxies() if proxy else None).get_res(url=url)

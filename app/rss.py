@@ -118,6 +118,7 @@ class Rss:
                 site_id = site_info.get("id")
                 site_cookie = site_info.get("cookie")
                 site_apikey = site_info.get("apikey")
+                site_url = site_info.get("strict_url")
                 site_ua = site_info.get("ua")
                 # 是否解析种子详情
                 site_parse = site_info.get("parse")
@@ -198,6 +199,7 @@ class Rss:
                             site_filter_rule=site_fliter_rule,
                             site_cookie=site_cookie,
                             site_apikey=site_apikey,
+                            site_url=site_url,
                             site_parse=site_parse,
                             site_ua=site_ua,
                             site_proxy=site_proxy)
@@ -333,6 +335,7 @@ class Rss:
                           site_filter_rule,
                           site_cookie,
                           site_apikey,
+                          site_url,
                           site_parse,
                           site_ua,
                           site_proxy):
@@ -344,6 +347,7 @@ class Rss:
         :param site_id: 站点ID
         :param site_filter_rule: 站点过滤规则
         :param site_cookie: 站点的Cookie
+        :param site_url: 站点的地址
         :param site_apikey: 站点的apikey
         :param site_parse: 是否解析种子详情
         :param site_ua: 站点请求UA
@@ -460,6 +464,7 @@ class Rss:
                 torrent_attr = self.siteconf.check_torrent_attr(torrent_url=media_info.page_url,
                                                                 cookie=site_cookie,
                                                                 apikey=site_apikey,
+                                                                site_url=site_url,
                                                                 ua=site_ua,
                                                                 proxy=site_proxy)
                 if torrent_attr.get('2xfree'):

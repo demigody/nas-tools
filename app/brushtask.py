@@ -182,6 +182,7 @@ class BrushTask(object):
         # 站点属性
         site_id = site_info.get("id")
         site_name = site_info.get("name")
+        site_url = site_info.get("strict_url")
         site_proxy = site_info.get("proxy")
         site_brush_enable = site_info.get("brush_enable")
         if not site_brush_enable:
@@ -250,16 +251,9 @@ class BrushTask(object):
                     continue
 
                 # 检查种子是否符合选种规则
-                if not self.__check_rss_rule(rss_rule=rss_rule,
-                                             title=torrent_name,
-                                             torrent_url=page_url,
-                                             torrent_size=size,
-                                             pubdate=pubdate,
-                                             siteid=site_id,
-                                             cookie=cookie,
-                                             apikey=apikey,
-                                             ua=ua,
-                                             proxy=site_proxy):
+                if not self.__check_rss_rule(rss_rule=rss_rule, title=torrent_name, torrent_url=page_url,
+                                             torrent_size=size, pubdate=pubdate, siteid=site_id, cookie=cookie,
+                                             apikey=apikey, ua=ua, proxy=site_proxy, site_url=site_url):
                     continue
                 # 检查能否添加当前种子，判断是否超过保种体积大小
                 if not self.__is_allow_new_torrent(taskinfo=taskinfo,
@@ -730,17 +724,8 @@ class BrushTask(object):
 
         return True
 
-    def __check_rss_rule(self,
-                         rss_rule,
-                         title,
-                         torrent_url,
-                         torrent_size,
-                         pubdate,
-                         siteid,
-                         cookie,
-                         apikey,
-                         ua,
-                         proxy):
+    def __check_rss_rule(self, rss_rule, title, torrent_url, torrent_size, pubdate, siteid, cookie, apikey, ua, proxy,
+                         site_url):
         """
         检查种子是否符合刷流过滤条件
         :param rss_rule: 过滤条件字典
@@ -751,6 +736,7 @@ class BrushTask(object):
         :param siteid: 站点ID
         :param cookie: Cookie
         :param ua: User-Agent
+        :param site_url: 站点地址
         :return: 是否命中
         """
         if not rss_rule:
@@ -790,6 +776,7 @@ class BrushTask(object):
                 return False
 
             torrent_attr = self.siteconf.check_torrent_attr(torrent_url=torrent_url,
+                                                            site_url=site_url,
                                                             cookie=cookie,
                                                             apikey=apikey,
                                                             ua=ua,

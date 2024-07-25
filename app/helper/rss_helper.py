@@ -70,7 +70,7 @@ class RssHelper:
                         # 大小
                         size = 0
                         # 处理mt_enclosure
-                        if 'm-team' in enclosure:
+                        if 'm-team' in enclosure or 'm-team' in link:
                             res = re.findall(r'\d+', link)
                             torrent_id = res[0]
                             from app.sites.mt import MtFunc
