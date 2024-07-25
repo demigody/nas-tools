@@ -1077,7 +1077,7 @@ class WebAction:
         """
         去除检查新版本
         """
-        return {"code": -1, "version": "3.3.18", "url": ""}
+        return {"code": -1, "version": "3.3.19", "url": ""}
 
     @staticmethod
     def __update_site(data):
